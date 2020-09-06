@@ -15,6 +15,8 @@ import {PRIMARY_COLOR, TERTIARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import {FormInput} from '../Components/FormInput';
 import LargeSquareButton from '../Components/LargeSquareButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {uploadClientPicture, createClient} from '../API/clients.services';
+import {defaultPicturePath} from '../assets/defaults';
 
 export default class Register2 extends React.Component {
   constructor(props) {
@@ -23,8 +25,45 @@ export default class Register2 extends React.Component {
       isEnabled: false,
       show: false,
       date: new Date('1996-11-14'),
+      name: '',
+      phone: '',
+      address: '',
+      invalidForm: true,
+      emptyName: false,
+      invalidPhone: false,
+      emptyAddress: false,
     };
   }
+
+  validateForm = () => {
+    const {name, phone, address} = this.state;
+    if (name.length === 0) {
+      this.setState({
+        emptyName: true,
+        invalidPhone: false,
+        emptyAddress: false,
+      });
+    } else if (phone.length !== 8) {
+      this.setState({
+        emptyName: false,
+        invalidPhone: true,
+        emptyAddress: false,
+      });
+    } else if (address.length === 0) {
+      this.setState({
+        emptyName: false,
+        invalidPhone: false,
+        emptyAddress: true,
+      });
+    } else {
+      this.setState({
+        invalidForm: false,
+        emptyName: false,
+        invalidPhone: false,
+        emptyAddress: false,
+      });
+    }
+  };
 
   showDatepicker = () => {
     this.setState({
@@ -47,19 +86,56 @@ export default class Register2 extends React.Component {
   };
 
   renderSinginButton = () => {
-    if (this.state.isEnabled) {
+    const {name, date, phone, address, isEnabled} = this.state;
+    const {email, password, picturePath} = this.props.navigation.state.params;
+    if (isEnabled) {
       return (
         <LargeSquareButton
-          action={() => this.props.navigation.navigate('RegisterSkills')}
+          action={() => {
+            this.validateForm();
+            if (!this.state.invalidForm) {
+              console.log(email + ' ' + password);
+              this.props.navigation.navigate('RegisterSkills');
+            }
+          }}
         />
       );
     }
     return (
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Text style={styles.textSignup}>Inscription</Text>
-        <LargeSquareButton action={() => console.log('PREESSS')} />
+        <LargeSquareButton
+          action={() => {
+            this.validateForm();
+            if (!this.state.invalidForm) {
+              //Add to DB as Client
+              console.log(email + ' ' + password);
+              if (picturePath !== defaultPicturePath) {
+                //Upload pic to firebase only if it's different from the default one
+                this.createClient();
+              }
+            }
+          }}
+        />
       </View>
     );
+  };
+
+  createClient = async () => {
+    const {name, date, phone, address, isEnabled} = this.state;
+    const {email, password, picturePath} = this.props.navigation.state.params;
+    const pictureUrl = await uploadClientPicture(picturePath);
+    const client = await createClient({
+      email,
+      password,
+      name,
+      date,
+      phone,
+      address,
+      pictureUrl,
+    });
+
+    console.log(client);
   };
 
   render() {
@@ -83,7 +159,16 @@ export default class Register2 extends React.Component {
         </View>
 
         <ScrollView style={styles.viewFormRegister}>
-          <FormInput placeholder="Nom complet..." iconName="ios-person-sharp" />
+          <FormInput
+            placeholder="Nom complet..."
+            iconName="ios-person-sharp"
+            onChangeText={(text) => this.setState({name: text})}
+          />
+          {this.state.emptyName && (
+            <Text style={styles.errorMessage}>
+              Ce champs ne doit pas être vide.
+            </Text>
+          )}
           {this.state.show && (
             <DateTimePicker
               testID="dateTimePicker"
@@ -120,8 +205,21 @@ export default class Register2 extends React.Component {
             placeholder="Teléphone..."
             iconName="ios-call-sharp"
             keyboardType="numeric"
+            onChangeText={(text) => this.setState({phone: text})}
           />
-          <FormInput placeholder="Adresse..." iconName="ios-location-sharp" />
+          {this.state.invalidPhone && (
+            <Text style={styles.errorMessage}>Doit contenir 8 caractères.</Text>
+          )}
+          <FormInput
+            placeholder="Adresse..."
+            iconName="ios-location-sharp"
+            onChangeText={(text) => this.setState({address: text})}
+          />
+          {this.state.emptyAddress && (
+            <Text style={styles.errorMessage}>
+              Ce champs ne doit pas être vide.
+            </Text>
+          )}
 
           <View style={styles.viewIsPro}>
             <Text
@@ -186,5 +284,11 @@ const styles = StyleSheet.create({
     color: SECONDARY_COLOR,
     fontWeight: 'bold',
     paddingRight: 50,
+  },
+  errorMessage: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
 });

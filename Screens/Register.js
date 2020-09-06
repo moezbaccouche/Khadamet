@@ -8,12 +8,16 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {FormInput} from '../Components/FormInput';
 import LargeButton from '../Components/LargeButton';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import LargeSquareButton from '../Components/LargeSquareButton';
-// import ImagePicker from 'react-native-image-picker';
+import {clientExists} from '../API/clients.services';
+import {professionalExists} from '../API/professionals.services';
+import ImagePicker from 'react-native-image-picker';
+import {defaultPicturePath} from '../assets/defaults';
 
 export default class Register extends React.Component {
   constructor(props) {
@@ -21,57 +25,50 @@ export default class Register extends React.Component {
     this.state = {
       email: '',
       password: '',
-      picturePath: 'http://qnimate.com/wp-content/uploads/2014/03/images2.jpg',
+      picturePath: defaultPicturePath,
+
       invalidEmail: false,
       noPasswordsMatch: false,
       invalidForm: true,
-      transferred: 0,
+      emailExists: false,
+      isLoading: false,
     };
   }
 
+  displayLoading() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            color={SECONDARY_COLOR}
+            size="large"></ActivityIndicator>
+        </View>
+      );
+    }
+  }
+
   avatarClicked = () => {
-    // ImagePicker.showImagePicker(
-    //   {
-    //     title: 'Choisissez une méthode',
-    //     takePhotoButtonTitle: 'Prendre une photo',
-    //     chooseFromLibraryButtonTitle: 'Parcourir la galerie',
-    //     cancelButtonTitle: 'Annuler',
-    //   },
-    //   (response) => {
-    //     if (response.didCancel) {
-    //       console.log("L'utilisateur a annulé la prise de photo !");
-    //     } else if (response.error) {
-    //       console.log('Erreur : ' + response.error);
-    //     } else {
-    //       console.log('Photo : ' + response.uri);
-    //       this.setState({
-    //         picturePath: response.uri,
-    //       });
-    //       // let requireSource = { uri: response.uri };
-    //     }
-    //   },
-    // );
+    ImagePicker.showImagePicker(
+      {
+        title: 'Choisissez une méthode',
+        takePhotoButtonTitle: 'Prendre une photo',
+        chooseFromLibraryButtonTitle: 'Parcourir la galerie',
+        cancelButtonTitle: 'Annuler',
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log("L'utilisateur a annulé la prise de photo !");
+        } else if (response.error) {
+          console.log('Erreur : ' + response.error);
+        } else {
+          console.log('Photo : ' + response.uri);
+          this.setState({
+            picturePath: response.uri,
+          });
+        }
+      },
+    );
   };
-
-  // uploadImage = async () => {
-  //   const uri = this.state.picturePath;
-  //   const fileName = uri.substring(uri.lastIndexOf('/') + 1);
-  //   const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-  //   console.log('LOOOOG', fileName);
-
-  //   firebase;
-
-  //   firebase
-  //     .storage()
-  //     .ref(fileName)
-  //     .putFile(uploadUri)
-  //     .then((snapshot) => {
-  //       console.log('UPLOADED SUCCESSFULLY', snapshot);
-  //     })
-  //     .catch((e) => {
-  //       console.error(e);
-  //     });
-  // };
 
   validateEmail = (email) => {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -105,7 +102,36 @@ export default class Register extends React.Component {
     }
   };
 
-  emailExists = (email) => {};
+  emailExists = async (email) => {
+    if (email !== '') {
+      this.setState({isLoading: true});
+      const proExists = await professionalExists(email);
+      const cliExists = await clientExists(email);
+
+      if (proExists || cliExists) {
+        this.setState({
+          emailExists: true,
+          invalidForm: true,
+          isLoading: false,
+        });
+      } else {
+        this.setState(
+          {
+            emailExists: false,
+            invalidForm: true,
+            isLoading: false,
+          },
+          () => {
+            this.props.navigation.navigate('RegisterInfos', {
+              email: this.state.email,
+              password: this.state.password,
+              picturePath: this.state.picturePath,
+            });
+          },
+        );
+      }
+    }
+  };
 
   render() {
     return (
@@ -118,6 +144,7 @@ export default class Register extends React.Component {
           backgroundColor={PRIMARY_COLOR}
           barStyle="light-content"
         />
+
         <TouchableOpacity
           style={{justifyContent: 'center', alignItems: 'center'}}
           onPress={() => this.avatarClicked()}>
@@ -142,6 +169,11 @@ export default class Register extends React.Component {
           {this.state.invalidEmail && (
             <Text style={styles.errorMessage}>Adresse email incorrecte.</Text>
           )}
+          {this.state.emailExists && (
+            <Text style={styles.errorMessage}>
+              Adresse email déjà utilisée.
+            </Text>
+          )}
           <FormInput
             placeholder="Mot de passe..."
             iconName="ios-lock-closed"
@@ -163,16 +195,12 @@ export default class Register extends React.Component {
               Les mots de passe ne correspondent pas.
             </Text>
           )}
+          {this.displayLoading()}
         </View>
         <View style={styles.viewButton}>
           <LargeSquareButton
             action={() => {
-              // if (this.state.invalidForm) {
-              //   alert("Le formulaire n'a pas été correctement rempli.");
-              // } else {
-              //this.uploadImage();
-              // this.props.navigation.navigate('RegisterInfos');
-              // }
+              this.emailExists(this.state.email);
             }}
           />
         </View>
@@ -224,5 +252,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  loading_container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

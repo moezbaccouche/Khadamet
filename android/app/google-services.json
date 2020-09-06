@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "241680622793",
+    "firebase_url": "https://khadamet-c3171.firebaseio.com",
+    "project_id": "khadamet-c3171",
+    "storage_bucket": "khadamet-c3171.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241680622793:android:791d82a90ec836ae22d918",
+        "android_client_info": {
+          "package_name": "com.khadamet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "241680622793-kdvje88c45a7nm0k3gd5disnhdjefcn4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHdPSM16PuMfgn1IwxR4FBbT8wQNYYBfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "241680622793-kdvje88c45a7nm0k3gd5disnhdjefcn4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
