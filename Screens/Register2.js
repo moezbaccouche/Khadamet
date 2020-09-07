@@ -16,8 +16,9 @@ import {PRIMARY_COLOR, TERTIARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import {FormInput} from '../Components/FormInput';
 import LargeSquareButton from '../Components/LargeSquareButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {uploadClientPicture, createClient} from '../API/clients.services';
+import {createClient} from '../API/clients.services';
 import {defaultPicturePath} from '../assets/defaults';
+import {uploadProfilePicture} from '../API/firebase.services';
 
 export default class Register2 extends React.Component {
   constructor(props) {
@@ -151,7 +152,7 @@ export default class Register2 extends React.Component {
     let pictureUrl = defaultPicturePath;
     if (defaultPicturePath !== picturePath) {
       //Upload picture to firebase only if it's different from the default one
-      pictureUrl = await uploadClientPicture(picturePath);
+      pictureUrl = await uploadProfilePicture(picturePath);
     }
 
     const client = createClient({

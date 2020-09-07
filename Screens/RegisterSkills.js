@@ -8,6 +8,7 @@ import {
   StatusBar,
   Dimensions,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
@@ -24,77 +25,82 @@ import {
 import ProfessionalSkillItem from '../Components/ProfessionalSkillItem';
 import Prompt from 'react-native-prompt';
 import LargeSquareButton from '../Components/LargeSquareButton';
+import {createProfessional} from '../API/professionals.services';
+import {addProfessionalSkills} from '../API/professionalSkills.service';
+import {defaultPicturePath} from '../assets/defaults';
+import {uploadProfilePicture} from '../API/firebase.services';
 
 export default class RegisterSkills extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       showPrompt: false,
+      isLoading: false,
       lastChosenSkillId: -1,
       skills: [
         {
-          id: 0,
+          id: '5f512ddab138f130a069a465',
           title: 'Jardinage',
           icon: require('../assets/gard.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: PRIMARY_COLOR,
           borderColor: '#2ECC71',
         },
         {
-          id: 1,
+          id: '5f512de7b138f130a069a466',
           title: 'Electricité',
           icon: require('../assets/electricity.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: ELECTRICITY_COLOR,
         },
         {
-          id: 2,
+          id: '5f56433580ec3e0252ae14df',
           title: 'Cuisine',
           icon: require('../assets/hamburger.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: COOKING_COLOR,
         },
         {
-          id: 3,
+          id: '5f56434580ec3e0252ae14e0',
           title: 'Nettoyage',
           icon: require('../assets/bucket.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: CLEANING_COLOR,
         },
         {
-          id: 4,
+          id: '5f56434c80ec3e0252ae14e1',
           title: 'Plomberie',
           icon: require('../assets/water.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: PLUMBING_COLOR,
         },
         {
-          id: 5,
+          id: '5f56438280ec3e0252ae14e2',
           title: 'Bricolage',
           icon: require('../assets/drill2.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: DIY_COLOR,
         },
         {
-          id: 6,
+          id: '5f56438d80ec3e0252ae14e3',
           title: 'Baby-Sitting',
           icon: require('../assets/baby.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: BABYSITTING_COLOR,
         },
         {
-          id: 7,
+          id: '5f56439580ec3e0252ae14e4',
           title: 'Peinture',
           icon: require('../assets/paint.png'),
           isSelected: false,
-          skillPrice: 0,
+          salary: 0,
           color: PAINTING_COLOR,
         },
       ],
@@ -127,10 +133,77 @@ export default class RegisterSkills extends React.Component {
         icon={item.icon}
         isSelected={item.isSelected}
         color={item.color}
-        skillPrice={item.skillPrice}
+        salary={item.salary}
         borderColor={item.borderColor}
         action={() => this.editSkillSelection(item)}
       />
+    );
+  };
+
+  createNewProfessional = async () => {
+    if (this.getSelectedSkills().length !== 0) {
+      this.setState({isLoading: true});
+
+      const {picturePath} = this.props.navigation.state.params;
+      let selectedSkills = this.getSelectedSkills();
+      try {
+        pictureUrl = defaultPicturePath;
+        if (picturePath !== defaultPicturePath) {
+          //Upload picture only if it's different from the default one
+          pictureUrl = await uploadProfilePicture(picturePath);
+        }
+        //Create the professional entity and get its generated ID
+        const professional = await createProfessional({
+          ...this.props.navigation.state.params,
+          pictureUrl,
+        });
+        addProfessionalSkills(selectedSkills, professional._id)
+          .then((response) => {
+            console.log(response);
+            this.setState({isLoading: false});
+
+            //Navigate to Home Screen
+          })
+          .catch((e) => {
+            this.setState({isLoading: false});
+          });
+      } catch (e) {
+        this.setState({isLoading: false});
+      }
+    } else {
+      alert('Veuillez sélectionner une compétence !');
+    }
+  };
+
+  getSelectedSkills = () => {
+    let selectedSkills = [];
+    this.state.skills.map((skill) => {
+      if (skill.isSelected) {
+        selectedSkills.push(skill);
+      }
+    });
+    return selectedSkills;
+  };
+
+  displaySignInButton = () => {
+    if (this.state.isLoading) {
+      return (
+        <View>
+          <ActivityIndicator
+            color={SECONDARY_COLOR}
+            size="large"></ActivityIndicator>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.viewButton}>
+        <Text style={styles.textSignup}>Inscription</Text>
+        <LargeSquareButton
+          action={() => {
+            this.createNewProfessional();
+          }}
+        />
+      </View>
     );
   };
 
@@ -177,7 +250,7 @@ export default class RegisterSkills extends React.Component {
               (item) => item.id === this.state.lastChosenSkillId,
             );
             let updatedSkills = [...this.state.skills];
-            updatedSkills[skillIndex].skillPrice = value;
+            updatedSkills[skillIndex].salary = value;
             updatedSkills[skillIndex].isSelected = true;
             this.setState({
               skills: [...updatedSkills],
@@ -195,11 +268,8 @@ export default class RegisterSkills extends React.Component {
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
           />
-          <View style={styles.viewButton}>
-            <Text style={styles.textSignup}>Inscription</Text>
 
-            <LargeSquareButton />
-          </View>
+          {this.displaySignInButton()}
         </ScrollView>
       </ImageBackground>
     );

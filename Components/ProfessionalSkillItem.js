@@ -15,7 +15,7 @@ export default class ProfessionalSkillItem extends React.Component {
   };
 
   selectedItem = () => {
-    const {color, title, skillPrice, icon, borderColor, action} = this.props;
+    const {color, title, salary, icon, borderColor, action} = this.props;
     return (
       <TouchableOpacity
         onPress={() => action()}
@@ -29,7 +29,7 @@ export default class ProfessionalSkillItem extends React.Component {
         ]}>
         <Image source={icon} style={styles.selectedSkillImage} />
         <Text style={styles.titleText}>{title}</Text>
-        <Text style={styles.skillPriceText}>{skillPrice} DT / H</Text>
+        <Text style={styles.salaryText}>{salary} DT / H</Text>
         <View
           style={[
             styles.checkIconContainer,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 18,
   },
-  skillPriceText: {
+  salaryText: {
     fontSize: 12,
   },
   checkIconContainer: {

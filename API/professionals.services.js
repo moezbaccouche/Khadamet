@@ -10,3 +10,36 @@ export async function professionalExists(email) {
     console.error(e);
   }
 }
+
+export const createProfessional = async ({
+  email,
+  password,
+  name,
+  dob,
+  phone,
+  address,
+  picturePath,
+}) => {
+  try {
+    const response = await fetch(`${DEV_BASE_URL}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name,
+        dob: dob,
+        address: address,
+        phone: phone,
+        email: email,
+        password: password,
+        picture: picturePath,
+      }),
+    });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
