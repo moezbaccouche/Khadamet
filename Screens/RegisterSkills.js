@@ -146,6 +146,7 @@ export default class RegisterSkills extends React.Component {
             name="ios-arrow-back-sharp"
             size={30}
             color={SECONDARY_COLOR}
+            onPress={() => this.props.navigation.goBack()}
           />
           <Text
             style={{

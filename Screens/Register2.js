@@ -9,6 +9,7 @@ import {
   Switch,
   Button,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, TERTIARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
@@ -32,6 +33,7 @@ export default class Register2 extends React.Component {
       emptyName: false,
       invalidPhone: false,
       emptyAddress: false,
+      isLoading: false,
     };
   }
 
@@ -95,7 +97,15 @@ export default class Register2 extends React.Component {
             this.validateForm();
             if (!this.state.invalidForm) {
               console.log(email + ' ' + password);
-              this.props.navigation.navigate('RegisterSkills');
+              this.props.navigation.navigate('RegisterSkills', {
+                email,
+                password,
+                name,
+                dob: date,
+                phone,
+                address,
+                picturePath,
+              });
             }
           }}
         />
@@ -111,7 +121,6 @@ export default class Register2 extends React.Component {
               //Add to DB as Client
               console.log(email + ' ' + password);
               if (picturePath !== defaultPicturePath) {
-                //Upload pic to firebase only if it's different from the default one
                 this.createClient();
               }
             }
@@ -121,21 +130,48 @@ export default class Register2 extends React.Component {
     );
   };
 
+  displayLoading() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            color={SECONDARY_COLOR}
+            size="large"></ActivityIndicator>
+        </View>
+      );
+    }
+    return this.renderSinginButton();
+  }
+
   createClient = async () => {
+    this.setState({isLoading: true});
     const {name, date, phone, address, isEnabled} = this.state;
     const {email, password, picturePath} = this.props.navigation.state.params;
-    const pictureUrl = await uploadClientPicture(picturePath);
-    const client = await createClient({
+
+    let pictureUrl = defaultPicturePath;
+    if (defaultPicturePath !== picturePath) {
+      //Upload picture to firebase only if it's different from the default one
+      pictureUrl = await uploadClientPicture(picturePath);
+    }
+
+    const client = createClient({
       email,
       password,
       name,
-      date,
+      dob: date,
       phone,
       address,
       pictureUrl,
-    });
-
-    console.log(client);
+    })
+      .then((val) => {
+        this.setState({isLoading: false});
+        console.log(val);
+        return val;
+      })
+      .catch((e) => {
+        this.setState({isLoading: false});
+        console.error(e);
+      });
   };
 
   render() {
@@ -238,7 +274,7 @@ export default class Register2 extends React.Component {
               value={this.state.isEnabled}
             />
           </View>
-          <View style={styles.viewButton}>{this.renderSinginButton()}</View>
+          <View style={styles.viewButton}>{this.displayLoading()}</View>
         </ScrollView>
       </ImageBackground>
     );

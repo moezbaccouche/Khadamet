@@ -35,7 +35,7 @@ export default class Register extends React.Component {
     };
   }
 
-  displayLoading() {
+  displayLoading = () => {
     if (this.state.isLoading) {
       return (
         <View style={styles.loadingContainer}>
@@ -45,7 +45,14 @@ export default class Register extends React.Component {
         </View>
       );
     }
-  }
+    return (
+      <LargeSquareButton
+        action={() => {
+          this.emailExists(this.state.email);
+        }}
+      />
+    );
+  };
 
   avatarClicked = () => {
     ImagePicker.showImagePicker(
@@ -195,15 +202,8 @@ export default class Register extends React.Component {
               Les mots de passe ne correspondent pas.
             </Text>
           )}
-          {this.displayLoading()}
         </View>
-        <View style={styles.viewButton}>
-          <LargeSquareButton
-            action={() => {
-              this.emailExists(this.state.email);
-            }}
-          />
-        </View>
+        <View style={styles.viewButton}>{this.displayLoading()}</View>
         <View style={styles.viewTextLogin}>
           <Text
             style={styles.textLogin}
