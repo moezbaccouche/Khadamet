@@ -6,61 +6,119 @@ import {
   Image,
   StatusBar,
   Text,
+  ActivityIndicator,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import LogoBig from '../Components/LogoBig';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import {FormInput} from '../Components/FormInput';
 import LargeSquareButton from '../Components/LargeSquareButton';
+import {login} from '../API/users.service';
+import {AuthContext} from '../Contexts/authContext';
 
-export default class Login extends React.Component {
-  render() {
+const Login = (props) => {
+  const [data, setData] = React.useState({
+    email: '',
+    password: '',
+  });
+  const [isLoading, setLoading] = React.useState(false);
+  const {signIn} = React.useContext(AuthContext);
+
+  const handleEmailChange = (val) => {
+    setData({
+      ...data,
+      email: val,
+    });
+  };
+
+  const handlePasswordChange = (val) => {
+    setData({
+      ...data,
+      password: val,
+    });
+  };
+
+  const displaySignInButton = () => {
+    if (isLoading) {
+      return (
+        <View>
+          <ActivityIndicator
+            color={SECONDARY_COLOR}
+            size="large"></ActivityIndicator>
+        </View>
+      );
+    }
     return (
-      <ImageBackground
-        source={require('../assets/splash.png')}
-        resizeMode="stretch"
-        style={styles.mainContainer}>
-        <StatusBar
-          backgroundColor={PRIMARY_COLOR}
-          barStyle="light-content"
-          translucent={true}
+      <View style={styles.viewButton}>
+        <Text style={styles.textLogin}>Inscription</Text>
+        <LargeSquareButton
+          action={() => {
+            loginHandle(data.email, data.password);
+          }}
         />
-
-        <LogoBig />
-        <View style={styles.viewFormLogin}>
-          <FormInput
-            placeholder="Email..."
-            iconName="ios-mail-sharp"
-            secureTextEntry={false}
-            autoCapitalize="none"
-          />
-          <FormInput
-            placeholder="Mot de passe..."
-            iconName="ios-lock-closed"
-            secureTextEntry={true}
-            autoCapitalize="none"
-          />
-        </View>
-        <View style={styles.viewButton}>
-          <Text style={styles.textLogin}>Connexion</Text>
-          <LargeSquareButton />
-        </View>
-        <View style={styles.viewBottom}>
-          <Text
-            style={styles.textBottom}
-            onPress={() => this.props.navigation.navigate('Register')}>
-            Inscription
-          </Text>
-          <Text
-            style={styles.textBottom}
-            onPress={() => this.props.navigation.navigate('Register')}>
-            Mot de passe oublié
-          </Text>
-        </View>
-      </ImageBackground>
+      </View>
     );
-  }
-}
+  };
+
+  const loginHandle = (email, password) => {
+    if (data.email.length !== 0 && data.password.length !== 0) {
+      setLoading(true);
+      login({email, password}).then((foundUser) => {
+        if (!foundUser.correctCredentials) {
+          alert('Email ou mot de passe incorrect.');
+          setLoading(false);
+          return;
+        }
+        signIn(foundUser);
+      });
+    } else {
+      alert("Veuillez saisir l'email et le mot de passe.");
+    }
+  };
+
+  return (
+    <ImageBackground
+      source={require('../assets/splash.png')}
+      resizeMode="stretch"
+      style={styles.mainContainer}>
+      <StatusBar
+        backgroundColor={PRIMARY_COLOR}
+        barStyle="light-content"
+        translucent={true}
+      />
+
+      <LogoBig />
+      <View style={styles.viewFormLogin}>
+        <FormInput
+          placeholder="Email..."
+          iconName="ios-mail-sharp"
+          secureTextEntry={false}
+          autoCapitalize="none"
+          onChangeText={(text) => handleEmailChange(text)}
+        />
+        <FormInput
+          placeholder="Mot de passe..."
+          iconName="ios-lock-closed"
+          secureTextEntry={true}
+          autoCapitalize="none"
+          onChangeText={(text) => handlePasswordChange(text)}
+        />
+      </View>
+      <View style={styles.viewButton}>{displaySignInButton()}</View>
+      <View style={styles.viewBottom}>
+        <Text
+          style={styles.textBottom}
+          onPress={() => props.navigation.navigate('Register')}>
+          Inscription
+        </Text>
+        <Text
+          style={styles.textBottom}
+          onPress={() => props.navigation.navigate('Register')}>
+          Mot de passe oublié
+        </Text>
+      </View>
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -82,7 +140,7 @@ const styles = StyleSheet.create({
   viewButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 40,
   },
   textLogin: {
     fontSize: 22,
@@ -103,3 +161,5 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
 });
+
+export default Login;

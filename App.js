@@ -1,5 +1,5 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, {useEffect} from 'react';
+import {View, Text, ActivityIndicator} from 'react-native';
 import Splash from './Screens/Splash';
 import MainMenu from './Screens/MainMenu';
 import Login from './Screens/Login';
@@ -33,78 +33,171 @@ import ConversationInput from './Components/ConversationInput';
 import Conversation from './Screens/Conversation';
 import ProfessionalSkillItem from './Components/ProfessionalSkillItem';
 import RegisterSkills from './Screens/RegisterSkills';
+import {AuthContext} from './Contexts/authContext';
+import AsyncStorage from '@react-native-community/async-storage';
+import {loginReducer} from './reducers/loginReducer';
+const App = () => {
+  const initialLoginState = {
+    isLoading: true,
+    userToken: null,
+  };
 
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
+  const [loginState, dispatch] = React.useReducer(
+    loginReducer,
+    initialLoginState,
+  );
+
+  const authContext = React.useMemo(
+    () => ({
+      signIn: async (foundUser) => {
+        const userToken = await foundUser.token;
+        try {
+          await AsyncStorage.setItem('userToken', userToken);
+        } catch (e) {
+          console.log(e);
+        }
+        dispatch({type: 'LOGIN', token: userToken});
+      },
+      signOut: async () => {
+        try {
+          await AsyncStorage.removeItem('userToken');
+        } catch (e) {
+          console.log(e);
+        }
+        dispatch({type: 'LOGOUT'});
+      },
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    AsyncStorage.getItem('userToken')
+      .then((userToken) => {
+        dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
+      })
+      .catch((e) => console.error(e));
+  }, []);
+
+  if (loginState.isLoading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="black" />
+      </View>
+    );
   }
 
-  render() {
-    const DrawerNavigator = createDrawerNavigator(
-      {Home: Home},
-      {
-        contentComponent: DrawerMenu,
-      },
-    );
+  return (
+    <AuthContext.Provider value={authContext}>
+      {loginState.userToken !== null ? <Home /> : <RegisterStackNavigator />}
+    </AuthContext.Provider>
+  );
+};
 
-    const AppNavigator = createStackNavigator(
-      {
-        Home: {
-          screen: Home,
-          navigationOptions: {
-            header: null,
-          },
-        },
-        Notifications: {
-          screen: Notifications,
-          navigationOptions: {
-            header: null,
-          },
-        },
-        DrawerMenu: {
-          screen: DrawerMenu,
-          navigationOptions: {
-            header: null,
-          },
-        },
+const RegisterStackNavigator = createStackNavigator(
+  {
+    Login: {
+      screen: Login,
+      navigationOptions: {
+        header: null,
       },
-      {
-        initialRouteName: 'Home',
+    },
+    Register: {
+      screen: Register,
+      navigationOptions: {
+        header: null,
       },
-    );
+    },
+    RegisterInfos: {
+      screen: Register2,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    RegisterSkills: {
+      screen: RegisterSkills,
+      navigationOptions: {
+        header: null,
+      },
+    },
+  },
+  {
+    initialRouteName: 'Login',
+  },
+);
 
-    const RegisterStackNavigator = createStackNavigator(
-      {
-        Login: {
-          screen: Login,
-          navigationOptions: {
-            header: null,
-          },
-        },
-        Register: {
-          screen: Register,
-          navigationOptions: {
-            header: null,
-          },
-        },
-        RegisterInfos: {
-          screen: Register2,
-          navigationOptions: {
-            header: null,
-          },
-        },
-        RegisterSkills: {
-          screen: RegisterSkills,
-          navigationOptions: {
-            header: null,
-          },
-        },
-      },
-      {
-        initialRouteName: 'Register',
-      },
-    );
+export default App;
 
-    return <RegisterStackNavigator />;
-  }
-}
+// export default class App extends React.Component {
+//   constructor(props) {
+//     super(props);
+//   }
+
+//   render() {
+//     const DrawerNavigator = createDrawerNavigator(
+//       {Home: Home},
+//       {
+//         contentComponent: DrawerMenu,
+//       },
+//     );
+
+//     const AppNavigator = createStackNavigator(
+//       {
+//         Home: {
+//           screen: Home,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//         Notifications: {
+//           screen: Notifications,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//         DrawerMenu: {
+//           screen: DrawerMenu,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//       },
+//       {
+//         initialRouteName: 'Home',
+//       },
+//     );
+
+//     const RegisterStackNavigator = createStackNavigator(
+//       {
+//         Login: {
+//           screen: Login,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//         Register: {
+//           screen: Register,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//         RegisterInfos: {
+//           screen: Register2,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//         RegisterSkills: {
+//           screen: RegisterSkills,
+//           navigationOptions: {
+//             header: null,
+//           },
+//         },
+//       },
+//       {
+//         initialRouteName: 'Register',
+//       },
+//     );
+
+//     return <Login />;
+//   }
+// }

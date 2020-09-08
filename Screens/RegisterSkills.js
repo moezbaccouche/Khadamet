@@ -162,7 +162,7 @@ export default class RegisterSkills extends React.Component {
             console.log(response);
             this.setState({isLoading: false});
 
-            //Navigate to Home Screen
+            //Navigate to Login Screen
           })
           .catch((e) => {
             this.setState({isLoading: false});
