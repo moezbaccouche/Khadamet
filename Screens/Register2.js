@@ -19,6 +19,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {createClient} from '../API/clients.services';
 import {defaultPicturePath} from '../assets/defaults';
 import {uploadProfilePicture} from '../API/firebase.services';
+import {createUser} from '../API/users.service';
+import UserRole from '../API/user.roles';
 
 export default class Register2 extends React.Component {
   constructor(props) {
@@ -97,7 +99,6 @@ export default class Register2 extends React.Component {
           action={() => {
             this.validateForm();
             if (!this.state.invalidForm) {
-              console.log(email + ' ' + password);
               this.props.navigation.navigate('RegisterSkills', {
                 email,
                 password,
@@ -120,10 +121,7 @@ export default class Register2 extends React.Component {
             this.validateForm();
             if (!this.state.invalidForm) {
               //Add to DB as Client
-              console.log(email + ' ' + password);
-              if (picturePath !== defaultPicturePath) {
-                this.createClient();
-              }
+              this.createClient();
             }
           }}
         />
@@ -155,7 +153,7 @@ export default class Register2 extends React.Component {
       pictureUrl = await uploadProfilePicture(picturePath);
     }
 
-    const client = createClient({
+    const client = createUser({
       email,
       password,
       name,
@@ -163,11 +161,12 @@ export default class Register2 extends React.Component {
       phone,
       address,
       pictureUrl,
+      userRole: UserRole.CLIENT,
     })
       .then((val) => {
         this.setState({isLoading: false});
         console.log(val);
-        return val;
+        this.props.navigation.navigate('Login');
       })
       .catch((e) => {
         this.setState({isLoading: false});
@@ -199,6 +198,7 @@ export default class Register2 extends React.Component {
           <FormInput
             placeholder="Nom complet..."
             iconName="ios-person-sharp"
+            autoCapitalize="words"
             onChangeText={(text) => this.setState({name: text})}
           />
           {this.state.emptyName && (

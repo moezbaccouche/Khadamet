@@ -1,17 +1,18 @@
 import React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import {SECONDARY_COLOR} from '../assets/colors';
 
 export default class CategoryItem extends React.Component {
   render() {
-    const {categoryTitle, categoryColor, categoryIcon} = this.props;
+    const {categoryTitle, categoryColor, categoryIcon, onPress} = this.props;
     return (
-      <View
+      <TouchableOpacity
         style={[styles.mainContainer, {backgroundColor: categoryColor}]}
-        source={categoryIcon}>
+        source={categoryIcon}
+        onPress={() => onPress()}>
         <Image source={categoryIcon} style={styles.imageCategory} />
         <Text style={styles.textCategory}>{categoryTitle}</Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

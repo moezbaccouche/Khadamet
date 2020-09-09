@@ -8,7 +8,11 @@ export default class SearchInput extends React.Component {
     return (
       <View style={styles.mainContainer}>
         <Ionicons name="ios-search-sharp" color={PRIMARY_COLOR} size={20} />
-        <TextInput placeholder="Recherche..." style={styles.textInput} />
+        <TextInput
+          placeholder="Recherche..."
+          style={styles.textInput}
+          {...this.props}
+        />
       </View>
     );
   }

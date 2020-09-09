@@ -5,24 +5,23 @@ import {PRIMARY_COLOR, STAR_COLOR, SECONDARY_COLOR} from '../assets/colors';
 
 export default class SearchedExpertItem extends React.Component {
   render() {
+    const {name, field, rating, salary, picture} = this.props;
     return (
       <View style={styles.mainContainer}>
-        <Image
-          source={require('../assets/profilePicMale.jpg')}
-          style={styles.employeeImage}
-        />
+        <Image source={{uri: picture}} style={styles.employeeImage} />
         <View style={styles.descriptionView}>
           <Text style={[styles.descriptionText, styles.employeeNameText]}>
-            Moez Baccouche
+            {name}
           </Text>
           <Text style={[styles.descriptionText, styles.categoryText]}>
-            Jardinage
+            {field}
           </Text>
           <View style={styles.ratingAndPriceView}>
             <Text style={[styles.descriptionText, styles.labelText]}>Note</Text>
             <Text style={[styles.descriptionText, styles.ratingAndPriceText]}>
-              4.5
+              {rating !== 0 ? rating : 'N/A'}
             </Text>
+
             <Ionicons name="ios-star-sharp" color={STAR_COLOR} size={16} />
             <Text
               style={[
@@ -33,7 +32,7 @@ export default class SearchedExpertItem extends React.Component {
               Prix
             </Text>
             <Text style={[styles.descriptionText, styles.ratingAndPriceText]}>
-              35 DT/h
+              {salary} DT/h
             </Text>
           </View>
         </View>

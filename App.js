@@ -37,61 +37,81 @@ import {AuthContext} from './Contexts/authContext';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './reducers/loginReducer';
 const App = () => {
-  const initialLoginState = {
-    isLoading: true,
-    userToken: null,
-  };
+  // const initialLoginState = {
+  //   isLoading: true,
+  //   userToken: null,
+  // };
 
-  const [loginState, dispatch] = React.useReducer(
-    loginReducer,
-    initialLoginState,
-  );
+  // const [loginState, dispatch] = React.useReducer(
+  //   loginReducer,
+  //   initialLoginState,
+  // );
 
-  const authContext = React.useMemo(
-    () => ({
-      signIn: async (foundUser) => {
-        const userToken = await foundUser.token;
-        try {
-          await AsyncStorage.setItem('userToken', userToken);
-        } catch (e) {
-          console.log(e);
-        }
-        dispatch({type: 'LOGIN', token: userToken});
-      },
-      signOut: async () => {
-        try {
-          await AsyncStorage.removeItem('userToken');
-        } catch (e) {
-          console.log(e);
-        }
-        dispatch({type: 'LOGOUT'});
-      },
-    }),
-    [],
-  );
+  // const authContext = React.useMemo(
+  //   () => ({
+  //     signIn: async (foundUser) => {
+  //       const userToken = await foundUser.token;
+  //       try {
+  //         await AsyncStorage.setItem('userToken', userToken);
+  //       } catch (e) {
+  //         console.log(e);
+  //       }
+  //       dispatch({type: 'LOGIN', token: userToken});
+  //     },
+  //     signOut: async () => {
+  //       try {
+  //         await AsyncStorage.removeItem('userToken');
+  //       } catch (e) {
+  //         console.log(e);
+  //       }
+  //       dispatch({type: 'LOGOUT'});
+  //     },
+  //   }),
+  //   [],
+  // );
 
-  useEffect(() => {
-    AsyncStorage.getItem('userToken')
-      .then((userToken) => {
-        dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-      })
-      .catch((e) => console.error(e));
-  }, []);
+  // useEffect(() => {
+  //   AsyncStorage.getItem('userToken')
+  //     .then((userToken) => {
+  //       dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
+  //     })
+  //     .catch((e) => console.error(e));
+  // }, []);
 
-  if (loginState.isLoading) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" color="black" />
-      </View>
-    );
-  }
+  // if (loginState.isLoading) {
+  //   return (
+  //     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+  //       <ActivityIndicator size="large" color="black" />
+  //     </View>
+  //   );
+  // }
 
-  return (
-    <AuthContext.Provider value={authContext}>
-      {loginState.userToken !== null ? <Home /> : <RegisterStackNavigator />}
-    </AuthContext.Provider>
-  );
+  // return (
+  //   <AuthContext.Provider value={authContext}>
+  //     {loginState.userToken !== null ? <Home /> : <RegisterStackNavigator />}
+  //   </AuthContext.Provider>
+  // );
+
+  return <HomeNavigator />;
 };
+
+const HomeNavigator = createStackNavigator(
+  {
+    Home: {
+      screen: Home,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    CategoryExperts: {
+      screen: CategoryExperts,
+      navigationOptions: {
+        header: null,
+      },
+    },
+  },
+  {initialRouteName: 'Home'},
+);
 
 const RegisterStackNavigator = createStackNavigator(
   {

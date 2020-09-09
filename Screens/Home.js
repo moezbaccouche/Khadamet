@@ -24,48 +24,56 @@ export default class Home extends React.Component {
       carouselItems: [
         {
           id: 0,
+          skillId: '5f56433580ec3e0252ae14df',
           categoryTitle: 'Cuisine',
           categoryColor: '#ffa030',
           categoryIcon: require('../assets/hamburger.png'),
         },
         {
           id: 1,
+          skillId: '5f512de7b138f130a069a466',
           categoryTitle: 'Electricité',
           categoryColor: '#74ACD1',
           categoryIcon: require('../assets/electricity.png'),
         },
         {
           id: 2,
+          skillId: '5f56434c80ec3e0252ae14e1',
           categoryTitle: 'Plomberie',
           categoryColor: '#67C1B0',
           categoryIcon: require('../assets/water.png'),
         },
         {
           id: 3,
+          skillId: '5f512ddab138f130a069a465',
           categoryTitle: 'Jardinage',
           categoryColor: PRIMARY_COLOR,
           categoryIcon: require('../assets/gard.png'),
         },
         {
           id: 4,
+          skillId: '5f56438280ec3e0252ae14e2',
           categoryTitle: 'Bricolage',
           categoryColor: '#9483ba',
           categoryIcon: require('../assets/drill2.png'),
         },
         {
           id: 5,
+          skillId: '5f56438d80ec3e0252ae14e3',
           categoryTitle: 'Baby-sitting',
           categoryColor: '#FF69B4',
           categoryIcon: require('../assets/baby.png'),
         },
         {
           id: 6,
+          skillId: '5f56439580ec3e0252ae14e4',
           categoryTitle: 'Peinture',
           categoryColor: '#e0c23a',
           categoryIcon: require('../assets/paint.png'),
         },
         {
           id: 7,
+          skillId: '5f56434580ec3e0252ae14e0',
           categoryTitle: 'Nettoyage',
           categoryColor: '#FAE800',
           categoryIcon: require('../assets/bucket.png'),
@@ -74,15 +82,21 @@ export default class Home extends React.Component {
     };
   }
 
-  _renderItem({item, index}) {
+  _renderItem = ({item, index}) => {
     return (
       <CategoryItem
         categoryTitle={item.categoryTitle}
         categoryColor={item.categoryColor}
         categoryIcon={item.categoryIcon}
+        onPress={() =>
+          this.props.navigation.navigate('CategoryExperts', {
+            skillId: item.skillId,
+            skillName: item.categoryTitle,
+          })
+        }
       />
     );
-  }
+  };
 
   render() {
     return (

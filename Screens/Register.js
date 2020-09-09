@@ -18,6 +18,7 @@ import {clientExists} from '../API/clients.services';
 import {professionalExists} from '../API/professionals.services';
 import ImagePicker from 'react-native-image-picker';
 import {defaultPicturePath} from '../assets/defaults';
+import {userExists} from '../API/users.service';
 
 export default class Register extends React.Component {
   constructor(props) {
@@ -112,10 +113,9 @@ export default class Register extends React.Component {
   emailExists = async (email) => {
     if (email !== '') {
       this.setState({isLoading: true});
-      const proExists = await professionalExists(email);
-      const cliExists = await clientExists(email);
+      const userAlreadyExists = await userExists(email);
 
-      if (proExists || cliExists) {
+      if (userAlreadyExists) {
         this.setState({
           emailExists: true,
           invalidForm: true,

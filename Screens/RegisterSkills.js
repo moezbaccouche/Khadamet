@@ -29,6 +29,8 @@ import {createProfessional} from '../API/professionals.services';
 import {addProfessionalSkills} from '../API/professionalSkills.service';
 import {defaultPicturePath} from '../assets/defaults';
 import {uploadProfilePicture} from '../API/firebase.services';
+import UserRole from '../API/user.roles';
+import {createUser} from '../API/users.service';
 
 export default class RegisterSkills extends React.Component {
   constructor(props) {
@@ -153,9 +155,10 @@ export default class RegisterSkills extends React.Component {
           pictureUrl = await uploadProfilePicture(picturePath);
         }
         //Create the professional entity and get its generated ID
-        const professional = await createProfessional({
+        const professional = await createUser({
           ...this.props.navigation.state.params,
           pictureUrl,
+          userRole: UserRole.PROFESSIONAL,
         });
         addProfessionalSkills(selectedSkills, professional._id)
           .then((response) => {
@@ -163,6 +166,7 @@ export default class RegisterSkills extends React.Component {
             this.setState({isLoading: false});
 
             //Navigate to Login Screen
+            this.props.navigation.navigate('Login');
           })
           .catch((e) => {
             this.setState({isLoading: false});
