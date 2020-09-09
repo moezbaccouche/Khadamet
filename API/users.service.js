@@ -69,3 +69,15 @@ export const getProfessionalsBySkill = async (skillId) => {
     console.error(err);
   }
 };
+
+export const searchProfessional = async (name, loggedUserId) => {
+  try {
+    const response = await fetch(
+      `${DEV_BASE_URL}search/${name}/${loggedUserId}`,
+    );
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};

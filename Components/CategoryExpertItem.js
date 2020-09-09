@@ -3,10 +3,9 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, STAR_COLOR, SECONDARY_COLOR} from '../assets/colors';
 
-export default class SearchedExpertItem extends React.Component {
+export default class CategoryExpertItem extends React.Component {
   render() {
-    const {name, field, rating, salary, picture, phone, email} = this.props;
-    console.log(this.props);
+    const {name, field, rating, salary, picture} = this.props;
     return (
       <View style={styles.mainContainer}>
         <Image source={{uri: picture}} style={styles.employeeImage} />
@@ -17,13 +16,7 @@ export default class SearchedExpertItem extends React.Component {
           <Text style={[styles.descriptionText, styles.categoryText]}>
             {field}
           </Text>
-          <Text style={[styles.descriptionText, styles.categoryText]}>
-            {email}
-          </Text>
-          <Text style={[styles.descriptionText, styles.categoryText]}>
-            {phone}
-          </Text>
-          {/* <View style={styles.ratingAndPriceView}>
+          <View style={styles.ratingAndPriceView}>
             <Text style={[styles.descriptionText, styles.labelText]}>Note</Text>
             <Text style={[styles.descriptionText, styles.ratingAndPriceText]}>
               {rating !== 0 ? rating : 'N/A'}
@@ -41,7 +34,7 @@ export default class SearchedExpertItem extends React.Component {
             <Text style={[styles.descriptionText, styles.ratingAndPriceText]}>
               {salary} DT/h
             </Text>
-          </View> */}
+          </View>
         </View>
       </View>
     );

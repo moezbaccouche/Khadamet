@@ -8,6 +8,9 @@ import {
   Image,
   TextInput,
   Dimensions,
+  TouchableOpacity,
+  TouchableHighlight,
+  TouchableWithoutFeedbackComponent,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
@@ -150,10 +153,11 @@ export default class Home extends React.Component {
             color={PRIMARY_COLOR}
             style={{marginHorizontal: 10}}
           />
-          <TextInput
+          <Text
             style={styles.textInput}
-            placeholder="Cherchez un service, un expert, ..."
-          />
+            onPress={() => this.props.navigation.navigate('Search')}>
+            Cherchez un service, un expert, ...
+          </Text>
         </View>
         <View style={styles.viewBodyContainer}>
           <View style={styles.viewCategories}>
@@ -233,9 +237,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 40,
     alignSelf: 'stretch',
+    padding: 10,
   },
   textInput: {
     flex: 1,
+    color: 'grey',
   },
   viewBodyContainer: {
     backgroundColor: SECONDARY_COLOR,

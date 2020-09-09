@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import SearchedExpertItem from '../Components/SearchedExpertItem';
 import {getProfessionalsBySkill} from '../API/users.service';
 import {TextInput} from 'react-native-gesture-handler';
+import CategoryExpertItem from '../Components/CategoryExpertItem';
 
 export default class CategoryExperts extends React.Component {
   constructor(props) {
@@ -71,7 +72,7 @@ export default class CategoryExperts extends React.Component {
 
   renderItemProfessional = (item) => {
     return (
-      <SearchedExpertItem
+      <CategoryExpertItem
         name={item.name}
         rating={item.generalRating}
         salary={item.salary}
@@ -80,10 +81,6 @@ export default class CategoryExperts extends React.Component {
     );
   };
 
-  renderFlatListHeader = () => {
-    //We made this component to remove the warning "Virtualized list should never be nested inside ScrollView"
-    return;
-  };
   displayLoading = () => {
     if (this.state.isLoading) {
       return (
@@ -99,16 +96,24 @@ export default class CategoryExperts extends React.Component {
       <View style={styles.mainContainer}>
         <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
         <View style={styles.headerToolbar}>
-          <Ionicons
-            name="ios-arrow-back-sharp"
-            size={30}
-            color={PRIMARY_COLOR}
-            onPress={() => this.props.navigation.goBack()}
-          />
+          <View style={{flex: 0.2}}>
+            <Ionicons
+              name="ios-arrow-back-sharp"
+              size={30}
+              color={PRIMARY_COLOR}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
 
-          <Text style={styles.headerTitle}>
-            Experts en {this.props.navigation.state.params.skillName}
-          </Text>
+          <View
+            style={{
+              flex: 0.6,
+              justifyContent: 'center',
+            }}>
+            <Text style={styles.headerTitle}>
+              Experts en {this.props.navigation.state.params.skillName}
+            </Text>
+          </View>
         </View>
         {this.displayLoading()}
         <View style={styles.bodyContainer}>

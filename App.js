@@ -36,6 +36,7 @@ import RegisterSkills from './Screens/RegisterSkills';
 import {AuthContext} from './Contexts/authContext';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './reducers/loginReducer';
+import Search from './Screens/Search';
 const App = () => {
   // const initialLoginState = {
   //   isLoading: true,
@@ -105,6 +106,12 @@ const HomeNavigator = createStackNavigator(
     },
     CategoryExperts: {
       screen: CategoryExperts,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    Search: {
+      screen: Search,
       navigationOptions: {
         header: null,
       },

@@ -13,16 +13,18 @@ import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import SearchInput from '../Components/SearchInput';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SearchedExpertItem from '../Components/SearchedExpertItem';
-import {getProfessionalsBySkill} from '../API/users.service';
+import {
+  getProfessionalsBySkill,
+  searchProfessional,
+} from '../API/users.service';
 import {TextInput} from 'react-native-gesture-handler';
 
 export default class CategoryExperts extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      experts: [],
       searchedExperts: [],
-      isLoading: true,
+      isLoading: false,
       searchString: '',
     };
   }
@@ -30,60 +32,50 @@ export default class CategoryExperts extends React.Component {
   searchExpert = (text) => {
     const searchString = text.toLowerCase().trim();
     console.log(searchString);
-    this.setState({
-      searchString: searchString,
-    });
-    if (this.state.searchString.length === 0) {
-      this.setState({searchedExperts: [...this.state.experts]});
-    } else {
+
+    this.setState({isLoading: true});
+    // const loggedUserId = await AsyncStorage.getItem('loggedUserId'); <---- Use it later
+
+    const loggedUserId = '5f579db4c1a0390820168022'; // <----- remove this line later when using asyncStorage
+    this.setState({searchString: searchString});
+
+    if (searchString.length === 0) {
       this.setState({
-        searchedExperts: [
-          ...this.state.experts.filter((item) =>
-            item.name.toLowerCase().includes(searchString),
-          ),
-        ],
+        searchedExperts: [],
+        isLoading: false,
       });
+    } else {
+      searchProfessional(text, loggedUserId)
+        .then((foundExperts) => {
+          console.log(foundExperts);
+          this.setState({
+            searchedExperts: foundExperts,
+            isLoading: false,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+          this.setState({
+            isLoading: false,
+          });
+        });
     }
   };
 
-  componentDidMount = () => {
-    this.loadCategoryProfessionals(this.props.navigation.state.params.skillId);
-  };
-
-  loadCategoryProfessionals = (skillId) => {
-    getProfessionalsBySkill(skillId)
-      .then((data) => {
-        if (data) {
-          this.setState({
-            isLoading: false,
-            experts: data,
-            searchedExperts: data,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        this.setState({
-          isLoading: false,
-        });
-      });
-  };
-
   renderItemProfessional = (item) => {
+    console.log('LOG', item);
     return (
       <SearchedExpertItem
         name={item.name}
         rating={item.generalRating}
         salary={item.salary}
         picture={item.picture}
+        phone={item.phone}
+        email={item.email}
       />
     );
   };
 
-  renderFlatListHeader = () => {
-    //We made this component to remove the warning "Virtualized list should never be nested inside ScrollView"
-    return;
-  };
   displayLoading = () => {
     if (this.state.isLoading) {
       return (
@@ -99,16 +91,21 @@ export default class CategoryExperts extends React.Component {
       <View style={styles.mainContainer}>
         <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
         <View style={styles.headerToolbar}>
-          <Ionicons
-            name="ios-arrow-back-sharp"
-            size={30}
-            color={PRIMARY_COLOR}
-            onPress={() => this.props.navigation.goBack()}
-          />
-
-          <Text style={styles.headerTitle}>
-            Experts en {this.props.navigation.state.params.skillName}
-          </Text>
+          <View style={{flex: 0.2}}>
+            <Ionicons
+              name="ios-arrow-back-sharp"
+              size={30}
+              color={PRIMARY_COLOR}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
+          <View
+            style={{
+              flex: 0.6,
+              justifyContent: 'center',
+            }}>
+            <Text style={[styles.headerTitle]}>Recherche</Text>
+          </View>
         </View>
         {this.displayLoading()}
         <View style={styles.bodyContainer}>
@@ -123,7 +120,7 @@ export default class CategoryExperts extends React.Component {
         <FlatList
           style={styles.bodyContainer}
           data={this.state.searchedExperts}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id.toString()}
           renderItem={({item}) => this.renderItemProfessional(item)}
         />
       </View>
@@ -145,8 +142,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    paddingLeft: 20,
     color: PRIMARY_COLOR,
+    alignSelf: 'center',
   },
   bodyContainer: {
     marginHorizontal: 20,
