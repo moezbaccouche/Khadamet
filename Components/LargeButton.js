@@ -31,6 +31,7 @@ export default class LargeButton extends React.Component {
           borderRadius: 30,
           alignItems: 'center',
           justifyContent: 'center',
+          ...this.props,
         }}>
         <Text
           style={{

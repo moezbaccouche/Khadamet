@@ -37,6 +37,7 @@ import {AuthContext} from './Contexts/authContext';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './reducers/loginReducer';
 import Search from './Screens/Search';
+import Review from './Screens/Review';
 const App = () => {
   // const initialLoginState = {
   //   isLoading: true,
@@ -93,7 +94,7 @@ const App = () => {
   //   </AuthContext.Provider>
   // );
 
-  return <HomeNavigator />;
+  return <WorkerProfile />;
 };
 
 const HomeNavigator = createStackNavigator(

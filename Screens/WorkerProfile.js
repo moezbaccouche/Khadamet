@@ -6,6 +6,9 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
@@ -17,12 +20,75 @@ import Menu, {
   MenuOption,
   renderers,
 } from 'react-native-popup-menu';
+import {getProfessional} from '../API/users.service';
+import {getSkillById} from '../API/skills.data';
+import {ScrollView} from 'react-native-gesture-handler';
+import ReviewItem from '../Components/ReviewItem';
+
 let unique = 0;
 export default class WorkerProfile extends React.Component {
   constructor(props, ctx) {
     super(props, ctx);
-    this.state = {log: []};
+    this.state = {
+      log: [],
+      expert: {
+        skills: [],
+        reviews: [],
+      },
+      nbReviews: 0,
+    };
   }
+
+  componentDidMount = () => {
+    this.getExpertDetails('5f579c0fc1a039082016801e');
+  };
+
+  getExpertDetails = (expertId) => {
+    getProfessional(expertId).then((data) => {
+      console.log('DETAILS: ', data);
+      this.setState({
+        expert: data,
+        nbReviews: data.reviews.length,
+      });
+    });
+  };
+
+  displayLoading = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+        </View>
+      );
+    }
+  };
+
+  renderSkills = (skill) => {
+    const skillToRender = getSkillById(skill.id);
+    const {title, icon, color, borderColor} = skillToRender;
+    return (
+      <SkillRating
+        skillName={title}
+        skillImage={icon}
+        workerRating={skill.rating}
+        backgroundColor={color}
+        color={color}
+        borderColor={borderColor}
+      />
+    );
+  };
+
+  renderReviews = (review) => {
+    return (
+      <ReviewItem
+        name={review.clientName}
+        generalComment={'Excellent'}
+        generalRating={review.generalRating}
+        comment={review.comment}
+        picture={review.clientPicture}
+      />
+    );
+  };
 
   selectNumber(value) {
     this.addLog(`selecting number: ${value}`);
@@ -55,90 +121,95 @@ export default class WorkerProfile extends React.Component {
             backgroundColor={PRIMARY_COLOR}
             barStyle="light-content"
           />
-
-          <View style={styles.headerContainer}>
+          <View style={styles.headerToolbar}>
+            <Ionicons
+              name="ios-arrow-back-sharp"
+              color={SECONDARY_COLOR}
+              size={30}
+              onPress={() => this.props.navigation.goBack()}
+            />
+            <Text style={{color: SECONDARY_COLOR, fontSize: 18}}>
+              Moez Baccouche
+            </Text>
+            <Menu
+              name="types"
+              onSelect={(value) => this.selectOptionType(value)}
+              onBackdropPress={() =>
+                this.addLog('menu will be closed by backdrop')
+              }
+              onOpen={() => this.addLog('menu is opening')}
+              onClose={() => this.addLog('menu is closing')}>
+              <MenuTrigger style={styles.trigger}>
+                <Ionicons
+                  name="ios-ellipsis-vertical"
+                  color={SECONDARY_COLOR}
+                  size={30}
+                />
+              </MenuTrigger>
+              <MenuOptions customStyles={{optionsContainer: {borderRadius: 8}}}>
+                <MenuOption
+                  value="Normal"
+                  text="Appeler"
+                  customStyles={{optionText: styles.menuItemsText}}
+                />
+                <MenuOption
+                  value="Disabled"
+                  text="Envoyer un message"
+                  customStyles={{optionText: styles.menuItemsText}}
+                />
+                <MenuOption
+                  value={{text: 'Hello world!'}}
+                  text="Envoyer un SMS"
+                  onSelect={() => console.log('Envoyer un sms')}
+                  customStyles={{optionText: styles.menuItemsText}}
+                />
+              </MenuOptions>
+            </Menu>
+          </View>
+          <ScrollView>
+            <View style={{height: 150, backgroundColor: PRIMARY_COLOR}}></View>
             <View
               style={{
+                flex: 1,
                 backgroundColor: 'white',
-                position: 'absolute',
-                top: 200,
-                left: 0,
-                height: Dimensions.get('window').height - 200,
-                width: Dimensions.get('window').width,
-                borderTopLeftRadius: 30,
-                borderTopRightRadius: 30,
+                borderTopStartRadius: 30,
+                borderTopEndRadius: 30,
+                paddingHorizontal: 20,
               }}>
               <View style={styles.workerDescriptionView}>
-                <Text style={styles.workerFullNameText}>Moez Baccouche</Text>
-                <Text style={styles.workerAgeText}>23 ans</Text>
+                <Text style={styles.workerFullNameText}>
+                  {this.state.expert.name}
+                </Text>
+                <Text style={styles.workerAgeText}>
+                  {this.state.expert.age} ans
+                </Text>
                 <Text style={styles.workerAddressText}>
-                  Route de Sfax, Borjine, M'Saken, Sousse
+                  {this.state.expert.address}
                 </Text>
               </View>
-              <View style={styles.skillsView}>
-                <SkillRating
-                  skillImage={require('../assets/hamburger.png')}
-                  backgroundColor="#FFA030"
-                  skillName="Cuisine"
-                  workerRating={4}
-                />
-                <SkillRating
-                  skillImage={require('../assets/gard.png')}
-                  backgroundColor={PRIMARY_COLOR}
-                  skillName="Jardinage"
-                  workerRating={3}
-                />
-              </View>
+              <FlatList
+                style={styles.skillsView}
+                data={this.state.expert.skills}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({item}) => this.renderSkills(item)}
+              />
+              <TouchableOpacity>
+                <Text style={{fontSize: 18}}>
+                  Avis ({this.state.nbReviews})
+                </Text>
+              </TouchableOpacity>
+              <FlatList
+                style={{}}
+                data={this.state.expert.reviews}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({item}) => this.renderReviews(item)}
+              />
             </View>
             <Image
-              source={require('../assets/profilePicMale.jpg')}
+              source={{uri: this.state.expert.picture}}
               style={styles.workerImage}
             />
-
-            <View style={styles.headerToolbar}>
-              <Ionicons
-                name="ios-arrow-back-sharp"
-                color={SECONDARY_COLOR}
-                size={30}
-                onPress={() => this.props.navigation.goBack()}
-              />
-              <Menu
-                name="types"
-                onSelect={(value) => this.selectOptionType(value)}
-                onBackdropPress={() =>
-                  this.addLog('menu will be closed by backdrop')
-                }
-                onOpen={() => this.addLog('menu is opening')}
-                onClose={() => this.addLog('menu is closing')}>
-                <MenuTrigger style={styles.trigger}>
-                  <Ionicons
-                    name="ios-ellipsis-vertical"
-                    color={SECONDARY_COLOR}
-                    size={30}
-                  />
-                </MenuTrigger>
-                <MenuOptions
-                  customStyles={{optionsContainer: {borderRadius: 8}}}>
-                  <MenuOption
-                    value="Normal"
-                    text="Appeler"
-                    customStyles={{optionText: styles.menuItemsText}}
-                  />
-                  <MenuOption
-                    value="Disabled"
-                    text="Envoyer un message"
-                    customStyles={{optionText: styles.menuItemsText}}
-                  />
-                  <MenuOption
-                    value={{text: 'Hello world!'}}
-                    text="Envoyer un SMS"
-                    onSelect={() => console.log('Envoyer un sms')}
-                    customStyles={{optionText: styles.menuItemsText}}
-                  />
-                </MenuOptions>
-              </Menu>
-            </View>
-          </View>
+          </ScrollView>
         </View>
       </MenuContext>
     );
@@ -160,13 +231,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 30,
     alignItems: 'center',
+    height: 56,
   },
   workerImage: {
     height: 152,
     width: 152,
     borderRadius: 13,
     position: 'absolute',
-    top: 120,
+    top: 70,
     left: Dimensions.get('window').width / 2 - 152 / 2,
   },
   workerFullNameText: {
@@ -187,8 +259,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   skillsView: {
-    marginTop: 50,
-    marginHorizontal: 20,
+    marginTop: 10,
   },
   menuItemsText: {
     fontSize: 16,

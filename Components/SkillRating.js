@@ -1,6 +1,8 @@
 import React from 'react';
 import {View, Image, StyleSheet, Text} from 'react-native';
 import RatingBar from './RatingBar';
+import {STAR_COLOR} from '../assets/colors';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class SkillRating extends React.Component {
   render() {
@@ -15,7 +17,16 @@ export default class SkillRating extends React.Component {
           <Image style={styles.skillImage} source={skillImage} />
         </View>
         <View style={styles.skillDescription}>
-          <Text style={styles.skillNameText}>{skillName}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingBottom: 5,
+            }}>
+            <Text style={styles.skillNameText}>{skillName}</Text>
+            <Ionicons name="ios-star-outline" size={28} color={STAR_COLOR} />
+          </View>
           <RatingBar barColor={backgroundColor} workerRating={workerRating} />
         </View>
       </View>
@@ -28,7 +39,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     height: 70,
-    marginBottom: 80,
+    marginVertical: 10,
     alignItems: 'center',
   },
   skillImageContainer: {
@@ -37,7 +48,8 @@ const styles = StyleSheet.create({
     width: 65,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 50,
+    borderRadius: 8,
+    elevation: 5,
   },
   skillImage: {
     height: 42,

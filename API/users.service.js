@@ -81,3 +81,13 @@ export const searchProfessional = async (name, loggedUserId) => {
     console.error(err);
   }
 };
+
+export const getProfessional = async (expertId) => {
+  try {
+    const response = await fetch(`${DEV_BASE_URL}professional/${expertId}`);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
