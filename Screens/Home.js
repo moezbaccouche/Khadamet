@@ -93,7 +93,6 @@ export default class Home extends React.Component {
   }
 
   componentDidMount = () => {
-    console.log('ACTIVE INDEX:', this.state.activeIndex);
     this.renderBestEmployeesForSkill();
   };
 
@@ -119,7 +118,6 @@ export default class Home extends React.Component {
     const index = this.state.activeIndex;
     const skill = this.state.carouselItems.find((item) => item.id === index);
     this.setState({activeCategoryColor: skill.categoryColor});
-    console.log('SKILL', skill);
     getBestProfessionals(skill.skillId)
       .then((bestProfessionalsForSkill) => {
         this.setState({
@@ -136,7 +134,6 @@ export default class Home extends React.Component {
   };
 
   renderBestProfessionalItem = (professional) => {
-    console.log('PRO', professional);
     return (
       <CategoryExpertItem
         name={professional.name}

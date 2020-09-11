@@ -6,7 +6,15 @@ import RatingStars from './RatingStars';
 
 export default class ReviewItem extends React.Component {
   render() {
-    const {name, generalComment, rating, comment, picture} = this.props;
+    const {
+      name,
+      generalComment,
+      rating,
+      comment,
+      picture,
+      skillName,
+      color,
+    } = this.props;
     return (
       <View style={styles.mainContainer}>
         <Image source={{uri: picture}} style={styles.clientPicture} />
@@ -14,12 +22,14 @@ export default class ReviewItem extends React.Component {
           <Text>{name}</Text>
           <View style={styles.viewRating}>
             <Text style={styles.generalComment}>{generalComment}</Text>
+
             <RatingStars rating={rating} />
             {/* <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
             <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
             <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
             <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
             <Ionicons name="ios-star-outline" size={18} color={STAR_COLOR} /> */}
+            <Text style={{color: color}}> ({skillName})</Text>
           </View>
           <Text style={styles.comment} numberOfLines={1}>
             {comment}

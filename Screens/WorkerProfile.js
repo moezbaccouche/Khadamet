@@ -103,14 +103,35 @@ export default class WorkerProfile extends React.Component {
     );
   };
 
+  getGeneralComment = (rating) => {
+    switch (rating) {
+      case 1:
+        return 'Médiocre';
+      case 2:
+        return 'Moyen';
+      case 3:
+        return 'Bien';
+      case 4:
+        return 'Excellent';
+      case 5:
+        return 'Parfait';
+    }
+  };
+
   renderReviews = (review) => {
+    console.log(review);
+    const skill = getSkillById(review.skillId);
+
+    console.log('SKKILL', skill);
     return (
       <ReviewItem
         name={review.clientName}
-        generalComment={'Excellent'}
+        generalComment={this.getGeneralComment(review.rating)}
         rating={review.rating}
         comment={review.comment}
         picture={review.clientPicture}
+        skillName={skill.title}
+        color={skill.color}
       />
     );
   };
