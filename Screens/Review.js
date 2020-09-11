@@ -20,6 +20,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import LargeButton from '../Components/LargeButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {addNewReview} from '../API/skillRatings.services';
+import Toast from 'react-native-root-toast';
 
 export default class Review extends React.Component {
   constructor(props) {
@@ -102,6 +103,13 @@ export default class Review extends React.Component {
           this.setState({isLoading: false});
           this.props.navigation.navigate('WorkerProfile', {
             updateReviews: true,
+          });
+          Toast.show('Votre avis a été enregistré.', {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.BOTTOM,
+            backgroundColor: PRIMARY_COLOR,
+            shadow: true,
+            containerStyle: {borderRadius: 8},
           });
         })
         .catch((err) => {
