@@ -6,7 +6,7 @@ import RatingStars from './RatingStars';
 
 export default class ReviewItem extends React.Component {
   render() {
-    const {name, generalComment, generalRating, comment, picture} = this.props;
+    const {name, generalComment, rating, comment, picture} = this.props;
     return (
       <View style={styles.mainContainer}>
         <Image source={{uri: picture}} style={styles.clientPicture} />
@@ -14,7 +14,7 @@ export default class ReviewItem extends React.Component {
           <Text>{name}</Text>
           <View style={styles.viewRating}>
             <Text style={styles.generalComment}>{generalComment}</Text>
-            <RatingStars rating={generalRating} />
+            <RatingStars rating={rating} />
             {/* <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
             <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
             <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />

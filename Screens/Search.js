@@ -72,6 +72,9 @@ export default class CategoryExperts extends React.Component {
         picture={item.picture}
         phone={item.phone}
         email={item.email}
+        onPress={() =>
+          this.props.navigation.navigate('WorkerProfile', {expertId: item._id})
+        }
       />
     );
   };

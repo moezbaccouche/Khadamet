@@ -19,6 +19,7 @@ export default class LargeButton extends React.Component {
       text,
       fontFamily,
       fontWeight,
+      onPress,
     } = this.props;
     return (
       <TouchableOpacity
@@ -31,8 +32,10 @@ export default class LargeButton extends React.Component {
           borderRadius: 30,
           alignItems: 'center',
           justifyContent: 'center',
+
           ...this.props,
-        }}>
+        }}
+        onPress={() => onPress()}>
         <Text
           style={{
             fontSize: 18,

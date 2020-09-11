@@ -13,7 +13,7 @@ import DrawerMenu from './Screens/DrawerMenu';
 import WorkerProfile from './Screens/WorkerProfile';
 import SkillRating from './Components/SkillRating';
 import RatingBar from './Components/RatingBar';
-import {PRIMARY_COLOR} from './assets/colors';
+import {PRIMARY_COLOR, STAR_COLOR} from './assets/colors';
 import Example from './Components/PopupMenu';
 import NewRequest from './Screens/NewRequest';
 import RequestSummary from './Screens/RequestSummary';
@@ -38,6 +38,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './reducers/loginReducer';
 import Search from './Screens/Search';
 import Review from './Screens/Review';
+import RatingStar from './Components/RatingStar';
 const App = () => {
   // const initialLoginState = {
   //   isLoading: true,
@@ -94,7 +95,7 @@ const App = () => {
   //   </AuthContext.Provider>
   // );
 
-  return <WorkerProfile />;
+  return <HomeNavigator />;
 };
 
 const HomeNavigator = createStackNavigator(
@@ -113,6 +114,18 @@ const HomeNavigator = createStackNavigator(
     },
     Search: {
       screen: Search,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    Review: {
+      screen: Review,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    WorkerProfile: {
+      screen: WorkerProfile,
       navigationOptions: {
         header: null,
       },

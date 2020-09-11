@@ -23,15 +23,7 @@ export default class RatingStars extends React.Component {
 
     let i = 0;
     for (i; i < rating; i++) {
-      if (rating > i && rating < i + 1) {
-        console.log('SUP');
-        stars = [...stars, halfStar];
-
-        i++;
-        break;
-      } else {
-        stars = [...stars, starItem];
-      }
+      stars = [...stars, starItem];
     }
     for (i; i < 5; i++) {
       stars = [...stars, starOutline];

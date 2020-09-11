@@ -6,7 +6,13 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class SkillRating extends React.Component {
   render() {
-    const {skillImage, skillName, workerRating, backgroundColor} = this.props;
+    const {
+      skillImage,
+      skillName,
+      workerRating,
+      backgroundColor,
+      onRatingPress,
+    } = this.props;
     return (
       <View style={styles.mainContainer}>
         <View
@@ -25,7 +31,12 @@ export default class SkillRating extends React.Component {
               paddingBottom: 5,
             }}>
             <Text style={styles.skillNameText}>{skillName}</Text>
-            <Ionicons name="ios-star-outline" size={28} color={STAR_COLOR} />
+            <Ionicons
+              name="ios-star-outline"
+              size={28}
+              color={STAR_COLOR}
+              onPress={() => onRatingPress()}
+            />
           </View>
           <RatingBar barColor={backgroundColor} workerRating={workerRating} />
         </View>

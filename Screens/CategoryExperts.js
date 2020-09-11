@@ -71,12 +71,16 @@ export default class CategoryExperts extends React.Component {
   };
 
   renderItemProfessional = (item) => {
+    console.log(item);
     return (
       <CategoryExpertItem
         name={item.name}
         rating={item.generalRating}
         salary={item.salary}
         picture={item.picture}
+        onPress={() =>
+          this.props.navigation.navigate('WorkerProfile', {expertId: item.id})
+        }
       />
     );
   };

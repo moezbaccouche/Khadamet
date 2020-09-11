@@ -179,6 +179,9 @@ export default class Home extends React.Component {
               picture={require('../assets/profilePicMale.jpg')}
               fullName="Moez Baccouche"
               age={23}
+              navigateToProfile={() =>
+                this.props.navigation.navigate('WorkerProfile')
+              }
             />
             <BestEmployeeItem
               picture={require('../assets/profilePic.jpg')}

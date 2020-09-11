@@ -1,5 +1,15 @@
 import React from 'react';
-import {View, Image, StyleSheet, Text} from 'react-native';
+import {
+  View,
+  Image,
+  StyleSheet,
+  Text,
+  StatusBar,
+  KeyboardAvoidingView,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import {
   STAR_COLOR,
   PRIMARY_COLOR,
@@ -7,58 +17,173 @@ import {
   SECONDARY_COLOR,
 } from '../assets/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {TextInput} from 'react-native-gesture-handler';
 import LargeButton from '../Components/LargeButton';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {addNewReview} from '../API/skillRatings.services';
 
 export default class Review extends React.Component {
-  render() {
+  constructor(props) {
+    super(props);
+    this.state = {
+      nbStars: 0,
+      isLoading: false,
+      comment: '',
+    };
+  }
+
+  renderStars = () => {
+    let i = 1;
+    let arrIcons = [];
+
+    //Render the sharp stars
+    for (i; i <= this.state.nbStars; i++) {
+      let counter = i;
+      arrIcons.push(
+        <Icon
+          style={{paddingHorizontal: 5}}
+          name="star"
+          size={40}
+          color={STAR_COLOR}
+          onPress={() =>
+            this.setState({nbStars: counter}, () => {
+              counter++;
+            })
+          }
+        />,
+      );
+    }
+
+    //Render the outline stars
+    for (i; i <= 5; i++) {
+      let counter = i;
+      arrIcons.push(
+        <Icon
+          style={{paddingHorizontal: 5}}
+          name="star-o"
+          size={40}
+          color={STAR_COLOR}
+          onPress={() => {
+            this.setState(
+              {
+                nbStars: counter,
+              },
+              () => {
+                counter++;
+              },
+            );
+          }}
+        />,
+      );
+    }
+    return arrIcons;
+  };
+
+  submitReview = () => {
+    const {nbStars, comment} = this.state;
+
+    console.log('NAV STATE', this.props.navigation.state.params);
+    const {skillId, expertId} = this.props.navigation.state.params;
+    const clientId = '5f57612837d6e1317c6f879e'; //<---- To be retrieved from Async storage
+
+    const trimmedComment = comment.trim();
+
+    if (trimmedComment.length !== 0 && nbStars !== 0) {
+      this.setState({isLoading: true});
+      const review = {
+        rating: nbStars,
+        comment: trimmedComment,
+        skillId: skillId,
+        clientId: clientId,
+        professionalId: expertId,
+      };
+      addNewReview(review)
+        .then((response) => {
+          console.log(response);
+          this.setState({isLoading: false});
+          this.props.navigation.navigate('WorkerProfile', {
+            updateReviews: true,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+          this.setState({isLoading: false});
+        });
+    } else {
+      alert('Veuillez attribuer une note et laissez un commentaire.');
+    }
+  };
+
+  renderButtonOrLoader = () => {
+    if (this.state.isLoading) {
+      return (
+        <View>
+          <ActivityIndicator
+            color={PRIMARY_COLOR}
+            size="large"></ActivityIndicator>
+        </View>
+      );
+    }
     return (
-      <View style={styles.mainContainer}>
+      <LargeButton
+        backgroundColor={PRIMARY_COLOR}
+        color={SECONDARY_COLOR}
+        text="Envoyer"
+        borderColor={PRIMARY_COLOR}
+        borderRadius={8}
+        fontWeight="bold"
+        onPress={() => this.submitReview()}
+      />
+    );
+  };
+
+  render() {
+    const {
+      skillName,
+      skillImage,
+      backgroundColor,
+      name,
+    } = this.props.navigation.state.params;
+    return (
+      <ScrollView style={styles.mainContainer} ref="scroll">
+        <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
         <View style={styles.headerToolbar}>
           <View style={{flex: 0.2}}>
             <Ionicons
               name="ios-arrow-back-sharp"
               color={PRIMARY_COLOR}
               size={30}
+              onPress={() => this.props.navigation.goBack()}
             />
           </View>
           <View style={{flex: 0.6, alignItems: 'center'}}>
-            <Text style={styles.headerTitle}>Avis</Text>
+            <Text style={styles.headerTitle}>
+              Avis sur {name.split(' ', 1)}
+            </Text>
           </View>
         </View>
         <View style={styles.bodyContainer}>
-          <View style={styles.skillImageContainer}>
-            <Image
-              source={require('../assets/hamburger.png')}
-              style={styles.skillImage}
-            />
+          <View
+            style={[
+              styles.skillImageContainer,
+              {backgroundColor: backgroundColor},
+            ]}>
+            <Image source={skillImage} style={styles.skillImage} />
           </View>
           <Text style={styles.description}>
-            Donnez votre avis sur Moez en cuisine
+            Donnez votre avis sur {name.split(' ', 1)} en {skillName}
           </Text>
-          <View style={styles.viewRating}>
-            <Ionicons name="ios-star-outline" size={40} color={STAR_COLOR} />
-            <Ionicons name="ios-star-outline" size={40} color={STAR_COLOR} />
-            <Ionicons name="ios-star-outline" size={40} color={STAR_COLOR} />
-            <Ionicons name="ios-star-outline" size={40} color={STAR_COLOR} />
-            <Ionicons name="ios-star-outline" size={40} color={STAR_COLOR} />
-          </View>
+          <View style={styles.viewRating}>{this.renderStars()}</View>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
+              multiline={true}
               placeholder="Dites aux autres utilisateurs ce que vous pensez de Moez..."
+              onChangeText={(text) => this.setState({comment: text})}
             />
           </View>
-
-          <LargeButton
-            backgroundColor={PRIMARY_COLOR}
-            color={SECONDARY_COLOR}
-            text="Envoyer"
-            borderColor={PRIMARY_COLOR}
-            borderRadius={8}
-          />
+          {this.renderButtonOrLoader()}
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -66,6 +191,7 @@ export default class Review extends React.Component {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    backgroundColor: SECONDARY_COLOR,
   },
   bodyContainer: {
     paddingHorizontal: 20,
@@ -77,6 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 20,
     alignItems: 'center',
+    marginTop: 20,
   },
   headerTitle: {
     fontSize: 20,
@@ -88,7 +215,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 23,
-    backgroundColor: COOKING_COLOR,
   },
   skillImage: {
     height: 72,
@@ -106,9 +232,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
   },
-  input: {},
+  input: {
+    paddingHorizontal: 10,
+    flexWrap: 'wrap',
+    textAlignVertical: 'top',
+  },
   inputContainer: {
-    paddingBottom: 50,
     marginBottom: 50,
     height: 100,
     borderColor: PRIMARY_COLOR,

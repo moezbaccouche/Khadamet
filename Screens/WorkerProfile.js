@@ -32,32 +32,45 @@ export default class WorkerProfile extends React.Component {
     this.state = {
       log: [],
       expert: {
-        skills: [],
         reviews: [],
       },
       nbReviews: 0,
+      isLoading: true,
     };
   }
 
   componentDidMount = () => {
-    this.getExpertDetails('5f579c0fc1a039082016801e');
+    this.getExpertDetails();
   };
 
-  getExpertDetails = (expertId) => {
-    getProfessional(expertId).then((data) => {
-      console.log('DETAILS: ', data);
-      this.setState({
-        expert: data,
-        nbReviews: data.reviews.length,
+  componentWillReceiveProps = (newProps) => {
+    if (newProps.navigation.state.params.updateReviews) {
+      this.getExpertDetails();
+    }
+  };
+
+  getExpertDetails = () => {
+    getProfessional(this.props.navigation.state.params.expertId)
+      .then((data) => {
+        this.setState({
+          expert: data,
+          nbReviews: data.reviews.length,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({
+          isLoading: false,
+        });
       });
-    });
   };
 
   displayLoading = () => {
     if (this.state.isLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+          <ActivityIndicator color={SECONDARY_COLOR} size="large" />
         </View>
       );
     }
@@ -66,6 +79,8 @@ export default class WorkerProfile extends React.Component {
   renderSkills = (skill) => {
     const skillToRender = getSkillById(skill.id);
     const {title, icon, color, borderColor} = skillToRender;
+    const {name, id} = this.state.expert;
+
     return (
       <SkillRating
         skillName={title}
@@ -74,6 +89,16 @@ export default class WorkerProfile extends React.Component {
         backgroundColor={color}
         color={color}
         borderColor={borderColor}
+        onRatingPress={() =>
+          this.props.navigation.navigate('Review', {
+            skillId: skill.id,
+            expertId: id,
+            skillName: title,
+            skillImage: icon,
+            name: name,
+            backgroundColor: color,
+          })
+        }
       />
     );
   };
@@ -83,7 +108,7 @@ export default class WorkerProfile extends React.Component {
       <ReviewItem
         name={review.clientName}
         generalComment={'Excellent'}
-        generalRating={review.generalRating}
+        rating={review.rating}
         comment={review.comment}
         picture={review.clientPicture}
       />
@@ -129,7 +154,7 @@ export default class WorkerProfile extends React.Component {
               onPress={() => this.props.navigation.goBack()}
             />
             <Text style={{color: SECONDARY_COLOR, fontSize: 18}}>
-              Moez Baccouche
+              {this.state.expert.name}
             </Text>
             <Menu
               name="types"
@@ -166,50 +191,54 @@ export default class WorkerProfile extends React.Component {
               </MenuOptions>
             </Menu>
           </View>
-          <ScrollView>
-            <View style={{height: 150, backgroundColor: PRIMARY_COLOR}}></View>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'white',
-                borderTopStartRadius: 30,
-                borderTopEndRadius: 30,
-                paddingHorizontal: 20,
-              }}>
-              <View style={styles.workerDescriptionView}>
-                <Text style={styles.workerFullNameText}>
-                  {this.state.expert.name}
-                </Text>
-                <Text style={styles.workerAgeText}>
-                  {this.state.expert.age} ans
-                </Text>
-                <Text style={styles.workerAddressText}>
-                  {this.state.expert.address}
-                </Text>
+          {this.displayLoading()}
+          {!this.state.isLoading && (
+            <ScrollView contentContainerStyle={{flexGrow: 1}}>
+              <View
+                style={{height: 150, backgroundColor: PRIMARY_COLOR}}></View>
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'white',
+                  borderTopStartRadius: 30,
+                  borderTopEndRadius: 30,
+                  paddingHorizontal: 20,
+                }}>
+                <View style={styles.workerDescriptionView}>
+                  <Text style={styles.workerFullNameText}>
+                    {this.state.expert.name}
+                  </Text>
+                  <Text style={styles.workerAgeText}>
+                    {this.state.expert.age} ans
+                  </Text>
+                  <Text style={styles.workerAddressText}>
+                    {this.state.expert.address}
+                  </Text>
+                </View>
+                <FlatList
+                  style={styles.skillsView}
+                  data={this.state.expert.skills}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({item}) => this.renderSkills(item)}
+                />
+                <TouchableOpacity>
+                  <Text style={{fontSize: 18}}>
+                    Avis ({this.state.nbReviews})
+                  </Text>
+                </TouchableOpacity>
+                <FlatList
+                  style={{}}
+                  data={this.state.expert.reviews}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({item}) => this.renderReviews(item)}
+                />
               </View>
-              <FlatList
-                style={styles.skillsView}
-                data={this.state.expert.skills}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({item}) => this.renderSkills(item)}
+              <Image
+                source={{uri: this.state.expert.picture}}
+                style={styles.workerImage}
               />
-              <TouchableOpacity>
-                <Text style={{fontSize: 18}}>
-                  Avis ({this.state.nbReviews})
-                </Text>
-              </TouchableOpacity>
-              <FlatList
-                style={{}}
-                data={this.state.expert.reviews}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({item}) => this.renderReviews(item)}
-              />
-            </View>
-            <Image
-              source={{uri: this.state.expert.picture}}
-              style={styles.workerImage}
-            />
-          </ScrollView>
+            </ScrollView>
+          )}
         </View>
       </MenuContext>
     );
@@ -265,5 +294,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 5,
     paddingHorizontal: 10,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    top: Dimensions.get('window').height / 2,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });

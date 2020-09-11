@@ -1,14 +1,16 @@
 import React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR, STAR_COLOR} from '../assets/colors';
 
 export default class BestEmployeeItem extends React.Component {
   render() {
-    const {picture, fullName, age, field} = this.props;
+    const {picture, fullName, age, field, navigateToProfile} = this.props;
     return (
       <View style={styles.mainContainer}>
-        <Image style={styles.employeeImage} source={picture} />
+        <TouchableOpacity onPress={() => navigateToProfile()}>
+          <Image style={styles.employeeImage} source={picture} />
+        </TouchableOpacity>
         <View style={styles.employeeDescription}>
           <Text style={styles.textEmployeeDescription}>{fullName}</Text>
           <Text style={styles.textEmployeeDescription}>{age} ans</Text>

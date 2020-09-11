@@ -1,14 +1,16 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, STAR_COLOR, SECONDARY_COLOR} from '../assets/colors';
 
 export default class CategoryExpertItem extends React.Component {
   render() {
-    const {name, field, rating, salary, picture} = this.props;
+    const {name, field, rating, salary, picture, onPress} = this.props;
     return (
       <View style={styles.mainContainer}>
-        <Image source={{uri: picture}} style={styles.employeeImage} />
+        <TouchableOpacity onPress={() => onPress()}>
+          <Image source={{uri: picture}} style={styles.employeeImage} />
+        </TouchableOpacity>
         <View style={styles.descriptionView}>
           <Text style={[styles.descriptionText, styles.employeeNameText]}>
             {name}
