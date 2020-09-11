@@ -96,6 +96,7 @@ export default class Review extends React.Component {
         skillId: skillId,
         clientId: clientId,
         professionalId: expertId,
+        postedAt: Date.now(),
       };
       addNewReview(review)
         .then((response) => {

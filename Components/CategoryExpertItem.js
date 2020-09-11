@@ -5,9 +5,9 @@ import {PRIMARY_COLOR, STAR_COLOR, SECONDARY_COLOR} from '../assets/colors';
 
 export default class CategoryExpertItem extends React.Component {
   render() {
-    const {name, field, rating, salary, picture, onPress} = this.props;
+    const {name, field, rating, salary, picture, onPress, color} = this.props;
     return (
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, {backgroundColor: color}]}>
         <TouchableOpacity onPress={() => onPress()}>
           <Image source={{uri: picture}} style={styles.employeeImage} />
         </TouchableOpacity>
@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     height: 90,
     borderRadius: 13,
-    backgroundColor: PRIMARY_COLOR,
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,

@@ -92,3 +92,15 @@ export const getProfessional = async (expertId) => {
     console.error(err);
   }
 };
+
+export const getBestProfessionals = async (skillId) => {
+  try {
+    const response = await fetch(
+      `${DEV_BASE_URL}professionals/best/skill/${skillId}`,
+    );
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};

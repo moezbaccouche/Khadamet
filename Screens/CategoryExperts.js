@@ -72,12 +72,14 @@ export default class CategoryExperts extends React.Component {
 
   renderItemProfessional = (item) => {
     console.log(item);
+    const {color} = this.props.navigation.state.params;
     return (
       <CategoryExpertItem
         name={item.name}
-        rating={item.generalRating}
+        rating={item.rating}
         salary={item.salary}
         picture={item.picture}
+        color={color}
         onPress={() =>
           this.props.navigation.navigate('WorkerProfile', {expertId: item.id})
         }
@@ -86,16 +88,18 @@ export default class CategoryExperts extends React.Component {
   };
 
   displayLoading = () => {
+    const {color} = this.props.navigation.state.params;
     if (this.state.isLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+          <ActivityIndicator color={color} size="large" />
         </View>
       );
     }
   };
 
   render() {
+    const {color} = this.props.navigation.state.params;
     return (
       <View style={styles.mainContainer}>
         <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
@@ -104,7 +108,7 @@ export default class CategoryExperts extends React.Component {
             <Ionicons
               name="ios-arrow-back-sharp"
               size={30}
-              color={PRIMARY_COLOR}
+              color={color}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -114,14 +118,18 @@ export default class CategoryExperts extends React.Component {
               flex: 0.6,
               justifyContent: 'center',
             }}>
-            <Text style={styles.headerTitle}>
+            <Text
+              style={[styles.headerTitle, {color: color, textAlign: 'center'}]}>
               Experts en {this.props.navigation.state.params.skillName}
             </Text>
           </View>
         </View>
         {this.displayLoading()}
         <View style={styles.bodyContainer}>
-          <SearchInput onChangeText={(text) => this.searchExpert(text)} />
+          <SearchInput
+            onChangeText={(text) => this.searchExpert(text)}
+            color={color}
+          />
           <View style={styles.expertsFoundNumberView}>
             <Text style={{fontSize: 16}}>Experts trouvés: </Text>
             <Text style={{fontWeight: 'bold'}}>
@@ -155,7 +163,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     paddingLeft: 20,
-    color: PRIMARY_COLOR,
+    // color: PRIMARY_COLOR,
   },
   bodyContainer: {
     marginHorizontal: 20,

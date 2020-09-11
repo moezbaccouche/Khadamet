@@ -67,7 +67,7 @@ export default class CategoryExperts extends React.Component {
     return (
       <SearchedExpertItem
         name={item.name}
-        rating={item.generalRating}
+        rating={item.rating}
         salary={item.salary}
         picture={item.picture}
         phone={item.phone}

@@ -11,19 +11,26 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedbackComponent,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import HomeSearchInput from '../Components/HomeSearchInput';
 import Carousel from 'react-native-snap-carousel';
 import CategoryItem from '../Components/CategoryItem';
-import BestEmployeeItem from '../Components/BestEmployeeItem';
+import {getBestProfessionals} from '../API/users.service';
+import BestProfessionalItem from '../Components/BestProfessionaltem';
+import CategoryExpertItem from '../Components/CategoryExpertItem';
 
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeIndex: 0,
+      bestProfessionals: [],
+      activeCategoryColor: '',
+      isLoading: true,
+      activeIndex: 3,
       carouselItems: [
         {
           id: 0,
@@ -85,7 +92,12 @@ export default class Home extends React.Component {
     };
   }
 
-  _renderItem = ({item, index}) => {
+  componentDidMount = () => {
+    console.log('ACTIVE INDEX:', this.state.activeIndex);
+    this.renderBestEmployeesForSkill();
+  };
+
+  renderItem = ({item, index}) => {
     return (
       <CategoryItem
         categoryTitle={item.categoryTitle}
@@ -95,10 +107,63 @@ export default class Home extends React.Component {
           this.props.navigation.navigate('CategoryExperts', {
             skillId: item.skillId,
             skillName: item.categoryTitle,
+            color: this.state.activeCategoryColor,
           })
         }
       />
     );
+  };
+
+  renderBestEmployeesForSkill = () => {
+    this.setState({isLoading: true});
+    const index = this.state.activeIndex;
+    const skill = this.state.carouselItems.find((item) => item.id === index);
+    this.setState({activeCategoryColor: skill.categoryColor});
+    console.log('SKILL', skill);
+    getBestProfessionals(skill.skillId)
+      .then((bestProfessionalsForSkill) => {
+        this.setState({
+          bestProfessionals: bestProfessionalsForSkill,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        this.setState({
+          isLoading: false,
+        });
+        console.error(err);
+      });
+  };
+
+  renderBestProfessionalItem = (professional) => {
+    console.log('PRO', professional);
+    return (
+      <CategoryExpertItem
+        name={professional.name}
+        rating={professional.rating}
+        salary={professional.salary}
+        picture={professional.picture}
+        color={this.state.activeCategoryColor}
+        onPress={() =>
+          this.props.navigation.navigate('WorkerProfile', {
+            expertId: professional.id,
+          })
+        }
+      />
+    );
+  };
+
+  displayLoading = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            size="large"
+            color={this.state.activeCategoryColor}
+          />
+        </View>
+      );
+    }
   };
 
   render() {
@@ -168,26 +233,25 @@ export default class Home extends React.Component {
               data={this.state.carouselItems}
               sliderWidth={Dimensions.get('window').width}
               itemWidth={115}
-              renderItem={this._renderItem}
-              onSnapToItem={(index) => this.setState({activeIndex: index})}
+              renderItem={this.renderItem}
+              onSnapToItem={(index) => {
+                this.setState({activeIndex: index}, () => {
+                  this.renderBestEmployeesForSkill();
+                });
+              }}
               firstItem={3}
             />
           </View>
           <View style={styles.viewBestEmployees}>
             <Text style={styles.sectionTitleText}>Meilleurs employés</Text>
-            <BestEmployeeItem
-              picture={require('../assets/profilePicMale.jpg')}
-              fullName="Moez Baccouche"
-              age={23}
-              navigateToProfile={() =>
-                this.props.navigation.navigate('WorkerProfile')
-              }
-            />
-            <BestEmployeeItem
-              picture={require('../assets/profilePic.jpg')}
-              fullName="Alice Leblanc"
-              age={25}
-            />
+            {this.displayLoading()}
+            {!this.state.isLoading && (
+              <FlatList
+                data={this.state.bestProfessionals}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({item}) => this.renderBestProfessionalItem(item)}
+              />
+            )}
           </View>
         </View>
       </ScrollView>
@@ -262,5 +326,8 @@ const styles = StyleSheet.create({
   viewBestEmployees: {
     marginHorizontal: 10,
     marginTop: 10,
+  },
+  loadingContainer: {
+    alignItems: 'center',
   },
 });

@@ -5,9 +5,11 @@ import {PRIMARY_COLOR} from '../assets/colors';
 
 export default class SearchInput extends React.Component {
   render() {
+    const {color} = this.props;
+    const fieldColor = color ? color : PRIMARY_COLOR;
     return (
-      <View style={styles.mainContainer}>
-        <Ionicons name="ios-search-sharp" color={PRIMARY_COLOR} size={20} />
+      <View style={[styles.mainContainer, {borderColor: fieldColor}]}>
+        <Ionicons name="ios-search-sharp" color={fieldColor} size={20} />
         <TextInput
           placeholder="Recherche..."
           style={styles.textInput}

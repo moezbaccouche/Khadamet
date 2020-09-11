@@ -3,7 +3,7 @@ import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR, STAR_COLOR} from '../assets/colors';
 
-export default class BestEmployeeItem extends React.Component {
+export default class BestProfessionalItem extends React.Component {
   render() {
     const {picture, fullName, age, field, navigateToProfile} = this.props;
     return (
