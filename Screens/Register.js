@@ -14,8 +14,6 @@ import {FormInput} from '../Components/FormInput';
 import LargeButton from '../Components/LargeButton';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import LargeSquareButton from '../Components/LargeSquareButton';
-import {clientExists} from '../API/clients.services';
-import {professionalExists} from '../API/professionals.services';
 import ImagePicker from 'react-native-image-picker';
 import {defaultPicturePath} from '../assets/defaults';
 import {userExists} from '../API/users.service';

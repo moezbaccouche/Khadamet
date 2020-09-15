@@ -5,10 +5,21 @@ import {PRIMARY_COLOR, STAR_COLOR, SECONDARY_COLOR} from '../assets/colors';
 
 export default class CategoryExpertItem extends React.Component {
   render() {
-    const {name, field, rating, salary, picture, onPress, color} = this.props;
+    const {
+      name,
+      field,
+      rating,
+      salary,
+      picture,
+      onImagePress,
+      onContainerPress,
+      color,
+    } = this.props;
     return (
-      <View style={[styles.mainContainer, {backgroundColor: color}]}>
-        <TouchableOpacity onPress={() => onPress()}>
+      <TouchableOpacity
+        style={[styles.mainContainer, {backgroundColor: color}]}
+        onPress={() => onContainerPress()}>
+        <TouchableOpacity onPress={() => onImagePress()}>
           <Image source={{uri: picture}} style={styles.employeeImage} />
         </TouchableOpacity>
         <View style={styles.descriptionView}>
@@ -38,7 +49,7 @@ export default class CategoryExpertItem extends React.Component {
             </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

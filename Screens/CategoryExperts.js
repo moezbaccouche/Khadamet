@@ -12,9 +12,7 @@ import {
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import SearchInput from '../Components/SearchInput';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import SearchedExpertItem from '../Components/SearchedExpertItem';
 import {getProfessionalsBySkill} from '../API/users.service';
-import {TextInput} from 'react-native-gesture-handler';
 import CategoryExpertItem from '../Components/CategoryExpertItem';
 
 export default class CategoryExperts extends React.Component {
@@ -72,7 +70,7 @@ export default class CategoryExperts extends React.Component {
 
   renderItemProfessional = (item) => {
     console.log(item);
-    const {color} = this.props.navigation.state.params;
+    const {color, skillId} = this.props.navigation.state.params;
     return (
       <CategoryExpertItem
         name={item.name}
@@ -80,8 +78,15 @@ export default class CategoryExperts extends React.Component {
         salary={item.salary}
         picture={item.picture}
         color={color}
-        onPress={() =>
+        onImagePress={() =>
           this.props.navigation.navigate('WorkerProfile', {expertId: item.id})
+        }
+        onContainerPress={() =>
+          this.props.navigation.navigate('NewRequest', {
+            professional: item,
+            skillId,
+            color,
+          })
         }
       />
     );

@@ -24,11 +24,6 @@ export default class ReviewItem extends React.Component {
             <Text style={styles.generalComment}>{generalComment}</Text>
 
             <RatingStars rating={rating} />
-            {/* <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
-            <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
-            <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
-            <Ionicons name="ios-star-sharp" size={18} color={STAR_COLOR} />
-            <Ionicons name="ios-star-outline" size={18} color={STAR_COLOR} /> */}
             <Text style={{color: color}}> ({skillName})</Text>
           </View>
           <Text style={styles.comment} numberOfLines={1}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {SECONDARY_COLOR, PRIMARY_COLOR, STAR_COLOR} from '../assets/colors';
 
 export default class RatingStars extends React.Component {
@@ -9,15 +9,9 @@ export default class RatingStars extends React.Component {
   }
 
   renderStars = (rating) => {
-    const starOutline = (
-      <Icon name="ios-star-outline" size={18} color={STAR_COLOR} />
-    );
-    const halfStar = (
-      <Icon name="ios-star-half-sharp" size={18} color={STAR_COLOR} />
-    );
-    const starItem = (
-      <Icon name="ios-star-sharp" size={18} color={STAR_COLOR} />
-    );
+    const starOutline = <Icon name="star-o" size={18} color={STAR_COLOR} />;
+    const halfStar = <Icon name="star-half" size={18} color={STAR_COLOR} />;
+    const starItem = <Icon name="star" size={18} color={STAR_COLOR} />;
 
     stars = [];
 

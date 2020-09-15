@@ -20,6 +20,7 @@ export default class LargeButton extends React.Component {
       fontFamily,
       fontWeight,
       onPress,
+      borderRadius,
     } = this.props;
     return (
       <TouchableOpacity
@@ -29,7 +30,7 @@ export default class LargeButton extends React.Component {
           backgroundColor,
           borderColor,
           borderWidth: 2,
-          borderRadius: 30,
+          borderRadius: borderRadius ? borderRadius : 30,
           alignItems: 'center',
           justifyContent: 'center',
 

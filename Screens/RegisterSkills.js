@@ -25,7 +25,6 @@ import {
 import ProfessionalSkillItem from '../Components/ProfessionalSkillItem';
 import Prompt from 'react-native-prompt';
 import LargeSquareButton from '../Components/LargeSquareButton';
-import {createProfessional} from '../API/professionals.services';
 import {addProfessionalSkills} from '../API/professionalSkills.service';
 import {defaultPicturePath} from '../assets/defaults';
 import {uploadProfilePicture} from '../API/firebase.services';

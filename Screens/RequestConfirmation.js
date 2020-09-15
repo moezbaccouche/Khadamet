@@ -6,6 +6,7 @@ import LargeButton from '../Components/LargeButton';
 
 export default class RequestConfirmation extends React.Component {
   render() {
+    const {color} = this.props.navigation.state.params;
     return (
       <View style={styles.mainContainer}>
         <StatusBar
@@ -13,34 +14,32 @@ export default class RequestConfirmation extends React.Component {
           barStyle="dark-content"
           backgroundColor={SECONDARY_COLOR}
         />
-        <View style={styles.iconContainer}>
-          <Ionicons
-            name="ios-checkmark-sharp"
-            color={PRIMARY_COLOR}
-            size={90}
-          />
+        <View style={[styles.iconContainer, {borderColor: color}]}>
+          <Ionicons name="ios-checkmark-sharp" color={color} size={90} />
         </View>
         <View style={styles.textContainer}>
           <Text
             style={{
               fontSize: 22,
               fontWeight: 'bold',
-              color: PRIMARY_COLOR,
+              color: color,
               paddingTop: 20,
             }}>
             Merci !
           </Text>
-          <Text style={{fontSize: 22, color: PRIMARY_COLOR}}>
+          <Text style={{fontSize: 22, color: color}}>
             Votre demande a été envoyée !
           </Text>
         </View>
         <View style={styles.buttonView}>
           <LargeButton
-            backgroundColor={PRIMARY_COLOR}
+            backgroundColor={color}
             color={SECONDARY_COLOR}
             text="Retour à l'accueil"
-            borderColor={PRIMARY_COLOR}
+            borderColor={color}
             fontWeight="bold"
+            borderRadius={8}
+            onPress={() => this.props.navigation.navigate('Home')}
           />
         </View>
       </View>
@@ -56,10 +55,10 @@ const styles = StyleSheet.create({
     backgroundColor: SECONDARY_COLOR,
   },
   iconContainer: {
-    height: 160,
-    width: 160,
-    backgroundColor: '#B2E0C6',
+    height: 140,
+    width: 140,
     borderRadius: 80,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

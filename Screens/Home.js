@@ -134,6 +134,9 @@ export default class Home extends React.Component {
   };
 
   renderBestProfessionalItem = (professional) => {
+    const skill = this.state.carouselItems.find(
+      (item) => item.id === this.state.activeIndex,
+    );
     return (
       <CategoryExpertItem
         name={professional.name}
@@ -144,6 +147,13 @@ export default class Home extends React.Component {
         onPress={() =>
           this.props.navigation.navigate('WorkerProfile', {
             expertId: professional.id,
+          })
+        }
+        onContainerPress={() =>
+          this.props.navigation.navigate('NewRequest', {
+            professional,
+            skillId: skill.skillId,
+            color: this.state.activeCategoryColor,
           })
         }
       />
@@ -218,7 +228,7 @@ export default class Home extends React.Component {
           <Text
             style={styles.textInput}
             onPress={() => this.props.navigation.navigate('Search')}>
-            Cherchez un service, un expert, ...
+            Cherchez un expert, ...
           </Text>
         </View>
         <View style={styles.viewBodyContainer}>

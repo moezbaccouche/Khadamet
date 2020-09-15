@@ -16,7 +16,6 @@ import {PRIMARY_COLOR, TERTIARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import {FormInput} from '../Components/FormInput';
 import LargeSquareButton from '../Components/LargeSquareButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {createClient} from '../API/clients.services';
 import {defaultPicturePath} from '../assets/defaults';
 import {uploadProfilePicture} from '../API/firebase.services';
 import {createUser} from '../API/users.service';

@@ -38,7 +38,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './reducers/loginReducer';
 import Search from './Screens/Search';
 import Review from './Screens/Review';
-import RatingStar from './Components/RatingStar';
 const App = () => {
   // const initialLoginState = {
   //   isLoading: true,
@@ -126,6 +125,30 @@ const HomeNavigator = createStackNavigator(
     },
     WorkerProfile: {
       screen: WorkerProfile,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    NewRequest: {
+      screen: NewRequest,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    RequestSummary: {
+      screen: RequestSummary,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    RequestDetails: {
+      screen: RequestDetails,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    RequestConfirmation: {
+      screen: RequestConfirmation,
       navigationOptions: {
         header: null,
       },
