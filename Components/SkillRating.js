@@ -1,10 +1,26 @@
 import React from 'react';
-import {View, Image, StyleSheet, Text} from 'react-native';
+import {View, Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RatingBar from './RatingBar';
 import {STAR_COLOR} from '../assets/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class SkillRating extends React.Component {
+  displayRatingStar = () => {
+    const {loggedUserId, professionalId} = this.props;
+
+    if (loggedUserId !== professionalId) {
+      return (
+        <Ionicons
+          name="ios-star-outline"
+          size={28}
+          color={STAR_COLOR}
+          onPress={() => onRatingPress()}
+        />
+      );
+    }
+    return;
+  };
+
   render() {
     const {
       skillImage,
@@ -12,6 +28,9 @@ export default class SkillRating extends React.Component {
       workerRating,
       backgroundColor,
       onRatingPress,
+      onSkillImagePress,
+      loggedUserId,
+      professionalId,
     } = this.props;
     return (
       <View style={styles.mainContainer}>
@@ -20,7 +39,9 @@ export default class SkillRating extends React.Component {
             styles.skillImageContainer,
             {backgroundColor: backgroundColor},
           ]}>
-          <Image style={styles.skillImage} source={skillImage} />
+          <TouchableOpacity onPress={() => onSkillImagePress()}>
+            <Image style={styles.skillImage} source={skillImage} />
+          </TouchableOpacity>
         </View>
         <View style={styles.skillDescription}>
           <View
@@ -31,12 +52,7 @@ export default class SkillRating extends React.Component {
               paddingBottom: 5,
             }}>
             <Text style={styles.skillNameText}>{skillName}</Text>
-            <Ionicons
-              name="ios-star-outline"
-              size={28}
-              color={STAR_COLOR}
-              onPress={() => onRatingPress()}
-            />
+            {this.displayRatingStar()}
           </View>
           <RatingBar barColor={backgroundColor} workerRating={workerRating} />
         </View>

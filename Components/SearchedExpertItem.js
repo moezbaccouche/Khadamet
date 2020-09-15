@@ -13,14 +13,13 @@ export default class SearchedExpertItem extends React.Component {
       picture,
       phone,
       email,
-      onImagePress,
+      onPress,
     } = this.props;
     console.log(this.props);
     return (
-      <View style={styles.mainContainer}>
-        <TouchableOpacity onPress={() => onImagePress()}>
-          <Image source={{uri: picture}} style={styles.employeeImage} />
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.mainContainer} onPress={() => onPress()}>
+        <Image source={{uri: picture}} style={styles.employeeImage} />
+
         <View style={styles.descriptionView}>
           <Text style={[styles.descriptionText, styles.employeeNameText]}>
             {name}
@@ -54,7 +53,7 @@ export default class SearchedExpertItem extends React.Component {
             </Text>
           </View> */}
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

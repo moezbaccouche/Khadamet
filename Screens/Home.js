@@ -137,21 +137,26 @@ export default class Home extends React.Component {
     const skill = this.state.carouselItems.find(
       (item) => item.id === this.state.activeIndex,
     );
+    const {id, name, rating, salary, picture} = professional;
     return (
       <CategoryExpertItem
-        name={professional.name}
-        rating={professional.rating}
-        salary={professional.salary}
-        picture={professional.picture}
+        name={name}
+        rating={rating}
+        salary={salary}
+        picture={picture}
         color={this.state.activeCategoryColor}
-        onPress={() =>
+        onImagePress={() =>
           this.props.navigation.navigate('WorkerProfile', {
-            expertId: professional.id,
+            expertId: id,
           })
         }
         onContainerPress={() =>
           this.props.navigation.navigate('NewRequest', {
-            professional,
+            professionalId: id,
+            professionalName: name,
+            professionalPicture: picture,
+            rating: rating,
+            salary: salary,
             skillId: skill.skillId,
             color: this.state.activeCategoryColor,
           })

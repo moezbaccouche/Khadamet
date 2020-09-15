@@ -71,19 +71,24 @@ export default class CategoryExperts extends React.Component {
   renderItemProfessional = (item) => {
     console.log(item);
     const {color, skillId} = this.props.navigation.state.params;
+    const {id, name, rating, salary, picture} = item;
     return (
       <CategoryExpertItem
-        name={item.name}
-        rating={item.rating}
-        salary={item.salary}
-        picture={item.picture}
+        name={name}
+        rating={rating}
+        salary={salary}
+        picture={picture}
         color={color}
         onImagePress={() =>
-          this.props.navigation.navigate('WorkerProfile', {expertId: item.id})
+          this.props.navigation.navigate('WorkerProfile', {expertId: id})
         }
         onContainerPress={() =>
           this.props.navigation.navigate('NewRequest', {
-            professional: item,
+            professionalId: id,
+            professionalName: name,
+            professionalPicture: picture,
+            rating: rating,
+            salary: salary,
             skillId,
             color,
           })

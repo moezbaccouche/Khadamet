@@ -93,13 +93,18 @@ export default class NewRequest extends React.Component {
 
   submitRequest = () => {
     const {address, description, date} = this.state;
-    const {professional, skillId, color} = this.props.navigation.state.params;
+    const {
+      professionalId,
+      professionalName,
+      skillId,
+      color,
+    } = this.props.navigation.state.params;
     const clientId = 'aaaaaa123'; // <---- Get the client id from Async storage
     if (address.length !== 0) {
       const newRequest = {
         skillId,
         clientId,
-        professionalId: professional.id,
+        professionalId,
         date,
         address,
         status: RequestStatus.PENDING,
@@ -108,7 +113,7 @@ export default class NewRequest extends React.Component {
       console.log('NEW REQ', newRequest);
       this.props.navigation.navigate('RequestSummary', {
         request: newRequest,
-        professionalName: professional.name,
+        professionalName,
         color,
       });
     } else {
@@ -118,7 +123,14 @@ export default class NewRequest extends React.Component {
   };
 
   render() {
-    const {color, professional} = this.props.navigation.state.params;
+    const {
+      professionalName,
+      professionalPicture,
+      rating,
+      salary,
+      color,
+    } = this.props.navigation.state.params;
+
     console.log('PARAMS:', this.props.navigation.state.params);
     return (
       <ScrollView style={styles.mainContainer}>
@@ -138,16 +150,14 @@ export default class NewRequest extends React.Component {
           </View>
           <View style={styles.selectedWorkerDescriptionContainer}>
             <Image
-              source={{uri: professional.picture}}
+              source={{uri: professionalPicture}}
               style={styles.workerImage}
             />
-            <Text style={styles.workerFullNameText}>{professional.name}</Text>
+            <Text style={styles.workerFullNameText}>{professionalName}</Text>
             <View style={styles.workerRatingView}>
-              <RatingStars rating={professional.rating} />
+              <RatingStars rating={rating} />
             </View>
-            <Text style={styles.workerPriceText}>
-              {professional.salary} DT / H
-            </Text>
+            <Text style={styles.workerPriceText}>{salary} DT / H</Text>
           </View>
         </View>
         <View style={styles.bodyContainer}>

@@ -9,6 +9,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
@@ -79,8 +80,8 @@ export default class WorkerProfile extends React.Component {
   renderSkills = (skill) => {
     const skillToRender = getSkillById(skill.id);
     const {title, icon, color, borderColor} = skillToRender;
-    const {name, id} = this.state.expert;
-
+    const {name, id, picture} = this.state.expert;
+    const loggedUserId = 'aa'; //<---- get id from async storage
     return (
       <SkillRating
         skillName={title}
@@ -89,6 +90,8 @@ export default class WorkerProfile extends React.Component {
         backgroundColor={color}
         color={color}
         borderColor={borderColor}
+        loggedUserId={loggedUserId}
+        professionalId={id}
         onRatingPress={() =>
           this.props.navigation.navigate('Review', {
             skillId: skill.id,
@@ -99,6 +102,19 @@ export default class WorkerProfile extends React.Component {
             backgroundColor: color,
           })
         }
+        onSkillImagePress={() => {
+          if (loggedUserId !== id) {
+            this.props.navigation.navigate('NewRequest', {
+              professionalId: id,
+              professionalName: name,
+              professionalPicture: picture,
+              rating: skill.rating,
+              salary: skill.salary,
+              skillId: skill.id,
+              color,
+            });
+          }
+        }}
       />
     );
   };
@@ -119,10 +135,8 @@ export default class WorkerProfile extends React.Component {
   };
 
   renderReviews = (review) => {
-    console.log(review);
     const skill = getSkillById(review.skillId);
 
-    console.log('SKKILL', skill);
     return (
       <ReviewItem
         name={review.clientName}
@@ -158,6 +172,42 @@ export default class WorkerProfile extends React.Component {
     });
   }
 
+  renderMenuOptions = () => {
+    const loggedUserId = 'aaa'; //<--- get from async storage
+    const {id, phone} = this.state.expert;
+    if (loggedUserId !== id) {
+      return (
+        <View>
+          <MenuOption
+            value="Normal"
+            text="Appeler"
+            onSelect={() => Linking.openURL(`tel:${phone}`)}
+            customStyles={{optionText: styles.menuItemsText}}
+          />
+          <MenuOption
+            value="Disabled"
+            text="Envoyer un message"
+            customStyles={{optionText: styles.menuItemsText}}
+          />
+          <MenuOption
+            value={{text: 'Hello world!'}}
+            text="Envoyer un SMS"
+            onSelect={() => Linking.openURL(`sms:${phone}`)}
+            customStyles={{optionText: styles.menuItemsText}}
+          />
+        </View>
+      );
+    }
+    return (
+      <MenuOption
+        value={{text: 'edit'}}
+        text="Modifier profil"
+        onSelect={() => console.log('Modifier profil')}
+        customStyles={{optionText: styles.menuItemsText}}
+      />
+    );
+  };
+
   render() {
     return (
       <MenuContext>
@@ -192,23 +242,11 @@ export default class WorkerProfile extends React.Component {
                   size={30}
                 />
               </MenuTrigger>
-              <MenuOptions customStyles={{optionsContainer: {borderRadius: 8}}}>
-                <MenuOption
-                  value="Normal"
-                  text="Appeler"
-                  customStyles={{optionText: styles.menuItemsText}}
-                />
-                <MenuOption
-                  value="Disabled"
-                  text="Envoyer un message"
-                  customStyles={{optionText: styles.menuItemsText}}
-                />
-                <MenuOption
-                  value={{text: 'Hello world!'}}
-                  text="Envoyer un SMS"
-                  onSelect={() => console.log('Envoyer un sms')}
-                  customStyles={{optionText: styles.menuItemsText}}
-                />
+              <MenuOptions
+                customStyles={{
+                  optionsContainer: {borderRadius: 8},
+                }}>
+                {this.renderMenuOptions()}
               </MenuOptions>
             </Menu>
           </View>
