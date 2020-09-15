@@ -30,8 +30,9 @@ import {defaultPicturePath} from '../assets/defaults';
 import {uploadProfilePicture} from '../API/firebase.services';
 import UserRole from '../API/user.roles';
 import {createUser} from '../API/users.service';
+import {getSkillById} from '../API/skills.data';
 
-export default class RegisterSkills extends React.Component {
+export default class EditSkills extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -108,6 +109,10 @@ export default class RegisterSkills extends React.Component {
     };
   }
 
+  componentDidMount = () => {
+    this.initSelectedSkills();
+  };
+
   editSkillSelection = (skill) => {
     const itemIndex = this.state.skills.findIndex(
       (item) => item.id === skill.id,
@@ -136,47 +141,11 @@ export default class RegisterSkills extends React.Component {
         color={item.color}
         salary={item.salary}
         borderColor={item.borderColor}
+        defaultBorderColor={PRIMARY_COLOR}
+        defaultBorderWidth={2}
         action={() => this.editSkillSelection(item)}
       />
     );
-  };
-
-  createNewProfessional = async () => {
-    const selectedSkills = this.getSelectedSkills();
-    if (selectedSkills.length !== 0) {
-      this.setState({isLoading: true});
-
-      const {picturePath} = this.props.navigation.state.params;
-
-      try {
-        pictureUrl = defaultPicturePath;
-        if (picturePath !== defaultPicturePath) {
-          //Upload picture only if it's different from the default one
-          pictureUrl = await uploadProfilePicture(picturePath);
-        }
-        //Create the professional entity and get its generated ID
-        const professional = await createUser({
-          ...this.props.navigation.state.params,
-          pictureUrl,
-          userRole: UserRole.PROFESSIONAL,
-        });
-        addProfessionalSkills(selectedSkills, professional._id)
-          .then((response) => {
-            console.log(response);
-            this.setState({isLoading: false});
-
-            //Navigate to Login Screen
-            this.props.navigation.navigate('Login');
-          })
-          .catch((e) => {
-            this.setState({isLoading: false});
-          });
-      } catch (e) {
-        this.setState({isLoading: false});
-      }
-    } else {
-      alert('Veuillez sélectionner une compétence !');
-    }
   };
 
   getSelectedSkills = () => {
@@ -189,50 +158,61 @@ export default class RegisterSkills extends React.Component {
     return selectedSkills;
   };
 
-  displaySignInButton = () => {
+  displayLoading = () => {
     if (this.state.isLoading) {
       return (
         <View>
           <ActivityIndicator
-            color={SECONDARY_COLOR}
+            color={PRIMARY_COLOR}
             size="large"></ActivityIndicator>
         </View>
       );
     }
-    return (
-      <View style={styles.viewButton}>
-        <Text style={styles.textSignup}>Inscription</Text>
-        <LargeSquareButton
-          action={() => {
-            this.createNewProfessional();
-          }}
-        />
-      </View>
-    );
+  };
+
+  initSelectedSkills = () => {
+    const {selectedSkills} = this.props.navigation.state.params;
+    let newSkills = [...this.state.skills];
+    selectedSkills.map((skill) => {
+      const skillIndex = this.state.skills.findIndex(
+        (item) => item.id === skill.skillId,
+      );
+      newSkills[skillIndex].salary = skill.salary;
+      newSkills[skillIndex].isSelected = true;
+    });
+
+    this.setState({skills: newSkills});
+  };
+
+  updateSkills = () => {
+    const newSkills = this.getSelectedSkills();
+    if (newSkills.length === 0) {
+      alert('Veuillez sélectionner une compétence.');
+    } else {
+      this.props.navigation.navigate('LoggedUserProfile', {newSkills});
+    }
   };
 
   render() {
     return (
-      <ImageBackground
-        source={require('../assets/splash.png')}
-        resizeMode="stretch"
-        style={styles.mainContainer}>
-        <StatusBar backgroundColor={PRIMARY_COLOR} barStyle="light-content" />
+      <View style={styles.mainContainer}>
+        <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
         <View style={styles.headerToolbar}>
           <Ionicons
             name="ios-arrow-back-sharp"
             size={30}
-            color={SECONDARY_COLOR}
+            color={PRIMARY_COLOR}
             onPress={() => this.props.navigation.goBack()}
           />
           <Text
             style={{
-              color: SECONDARY_COLOR,
+              color: PRIMARY_COLOR,
               paddingHorizontal: 20,
               fontSize: 18,
-              alignSelf: 'center',
-            }}>
-            Sélectionnez vos compétences
+              fontWeight: 'bold',
+            }}
+            onPress={() => this.updateSkills()}>
+            Terminé
           </Text>
         </View>
         <Prompt
@@ -272,10 +252,8 @@ export default class RegisterSkills extends React.Component {
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
           />
-
-          {this.displaySignInButton()}
         </ScrollView>
-      </ImageBackground>
+      </View>
     );
   }
 }
@@ -283,6 +261,7 @@ export default class RegisterSkills extends React.Component {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    backgroundColor: SECONDARY_COLOR,
   },
   headerToolbar: {
     flexDirection: 'row',
@@ -290,6 +269,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     alignItems: 'center',
     marginTop: 20,
+    justifyContent: 'space-between',
   },
   skillsContainer: {
     marginHorizontal: 20,
@@ -300,11 +280,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 50,
     justifyContent: 'center',
-  },
-  textSignup: {
-    fontSize: 22,
-    color: SECONDARY_COLOR,
-    fontWeight: 'bold',
-    paddingRight: 50,
   },
 });

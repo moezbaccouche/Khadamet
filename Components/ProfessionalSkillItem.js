@@ -5,9 +5,20 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class ProfessionalSkillItem extends React.Component {
   unselectedItem = () => {
-    const {title, icon, action} = this.props;
+    const {
+      title,
+      icon,
+      defaultBorderColor,
+      defaultBorderWidth,
+      action,
+    } = this.props;
     return (
-      <TouchableOpacity style={styles.mainContainer} onPress={() => action()}>
+      <TouchableOpacity
+        style={[
+          styles.mainContainer,
+          {borderColor: defaultBorderColor, borderWidth: defaultBorderWidth},
+        ]}
+        onPress={() => action()}>
         <Image source={icon} style={styles.image} />
         <Text style={styles.titleText}>{title}</Text>
       </TouchableOpacity>

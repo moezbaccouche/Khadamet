@@ -104,3 +104,31 @@ export const getBestProfessionals = async (skillId) => {
     console.error(err);
   }
 };
+
+export const getUser = async (userId) => {
+  try {
+    const response = await fetch(`${DEV_BASE_URL}${userId}`);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const updateUser = async (updatedUser) => {
+  try {
+    const response = await fetch(`${DEV_BASE_URL}${updatedUser.id}`, {
+      method: 'PATCH',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedUser),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.error(e);
+  }
+};

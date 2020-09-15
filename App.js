@@ -38,6 +38,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './reducers/loginReducer';
 import Search from './Screens/Search';
 import Review from './Screens/Review';
+import LoggedUserProfileImage from './Components/LoggedUserProfileImage';
+import EditSkills from './Screens/EditSkills';
+
 const App = () => {
   // const initialLoginState = {
   //   isLoading: true,
@@ -153,8 +156,20 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
+    LoggedUserProfile: {
+      screen: LoggedUserProfile,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    EditSkills: {
+      screen: EditSkills,
+      navigationOptions: {
+        header: null,
+      },
+    },
   },
-  {initialRouteName: 'Home'},
+  {initialRouteName: 'LoggedUserProfile'},
 );
 
 const RegisterStackNavigator = createStackNavigator(
