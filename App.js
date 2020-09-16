@@ -97,7 +97,7 @@ const App = () => {
   //   </AuthContext.Provider>
   // );
 
-  return <HomeNavigator />;
+  return <Requests />;
 };
 
 const HomeNavigator = createStackNavigator(

@@ -17,3 +17,13 @@ export const addNewRequest = async (request) => {
     console.error(err);
   }
 };
+
+export const getPendingRequestsForProfessional = async (professionalId) => {
+  try {
+    const response = await fetch(`${DEV_BASE_URL}pending/${professionalId}`);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
