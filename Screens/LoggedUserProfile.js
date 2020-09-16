@@ -9,6 +9,7 @@ import {
   TextInput,
   Dimensions,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
@@ -17,7 +18,6 @@ import {getUser, updateUser} from '../API/users.service';
 import LoggedUserProfileImage from '../Components/LoggedUserProfileImage';
 import ImagePicker from 'react-native-image-picker';
 import moment from 'moment';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import UserRole from '../API/user.roles';
 import {
   getSkillsForProfessional,
@@ -25,6 +25,8 @@ import {
 } from '../API/professionalSkills.service';
 import {uploadProfilePicture} from '../API/firebase.services';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import _ from 'lodash';
+import Toast from 'react-native-root-toast';
 
 export default class LoggedUserProfile extends React.Component {
   constructor(props) {
@@ -36,6 +38,7 @@ export default class LoggedUserProfile extends React.Component {
       skills: [],
       userAux: {},
       show: false,
+      isUpdating: false,
     };
   }
 
@@ -46,7 +49,6 @@ export default class LoggedUserProfile extends React.Component {
   loadSkills = () => {
     getSkillsForProfessional(this.state.user.id)
       .then((data) => {
-        console.log('SKILLS', data);
         this.setState({skills: data, isLoading: false});
       })
       .catch((err) => {
@@ -59,7 +61,7 @@ export default class LoggedUserProfile extends React.Component {
     const loggedUserId = '5f579c0fc1a039082016801e'; //<--- get from async storage
     getUser(loggedUserId)
       .then((data) => {
-        console.log('DATA', data);
+        data.dob = new Date(data.dob);
         this.setState({
           user: data,
           userAux: data,
@@ -116,46 +118,96 @@ export default class LoggedUserProfile extends React.Component {
     );
   };
 
+  displayToast = (msg) => {
+    Toast.show(msg, {
+      duration: Toast.durations.LONG,
+      position: Toast.positions.BOTTOM,
+      backgroundColor: PRIMARY_COLOR,
+      shadow: true,
+      containerStyle: {borderRadius: 8},
+    });
+  };
+
   newSkills = () => {
+    //This function is used to test if the user updated his skills
+    //If it returns true then the update button will be enabled else it will be disabled
+
     const oldSkills = this.state.skills;
-    const {newSkills} = this.props.navigation.state.params || [];
-    if (newSkills && JSON.stringify(oldSkills) !== JSON.stringify(newSkills)) {
+    let newSkills = [];
+    const params = this.props.navigation.state.params;
+    if (params) {
+      newSkills = [...params.newSkills];
+    }
+
+    let oldSkillsAux = [];
+    oldSkills.map((oldSkill) => {
+      oldSkillsAux.push({id: oldSkill.skillId, salary: oldSkill.salary});
+    });
+
+    let newSkillsAux = [];
+    newSkills.map((newSkill) => {
+      newSkillsAux.push({id: newSkill.id, salary: newSkill.salary});
+    });
+
+    if (
+      newSkills.length !== 0 &&
+      !_.isEqual(_.sortBy(oldSkillsAux), _.sortBy(newSkillsAux))
+    ) {
       return true;
     }
     return false;
   };
 
   updateProfile = async () => {
-    const {user} = this.state;
-    if (user.role === UserRole.PROFESSIONAL && this.newSkills()) {
-      // updateSkills
-      const {newSkills} = this.props.navigation.state.params;
-      console.log('NEW SKILLS', newSkills);
-      updateSkills(newSkills, user.id)
-        .then((response) => {
-          this.setState({skills: response});
-          console.log('UPDATE SKILLS', response);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
+    console.log('VALID', this.isValidForm());
+    if (this.isValidForm()) {
+      const {user, userAux} = this.state;
+      if (user.role === UserRole.PROFESSIONAL && this.newSkills()) {
+        // updateSkills
+        this.setState({isUpdating: true});
+        const {newSkills} = this.props.navigation.state.params;
+        updateSkills(newSkills, user.id)
+          .then((response) => {
+            this.setState({skills: response, isUpdating: false});
+            console.log('UPDATE SKILLS', response);
+            this.displayToast('Vos compétences ont été mises à jour.');
+          })
+          .catch((err) => {
+            console.error(err);
+            this.setState({isUpdating: false});
+          });
+      }
 
-    //updateProfile
-    const {picture} = this.state.user;
-    let pictureUrl = picture;
-    if (picture !== this.state.userAux.picture) {
-      //Upload new picture
-      pictureUrl = await uploadProfilePicture(this.state.user.picture);
+      //Update the profile infos only if they are different from the original ones
+      if (!_.isEqual(user, userAux)) {
+        //updateProfile
+        this.setState({isUpdating: true});
+        const {picture} = this.state.user;
+        let pictureUrl = picture;
+        if (picture !== this.state.userAux.picture) {
+          //Upload new picture
+          pictureUrl = await uploadProfilePicture(this.state.user.picture);
+        }
+        const updatedUser = {...this.state.user, picture: pictureUrl};
+        updateUser(updatedUser)
+          .then((response) => {
+            console.log('UPDATED USER', response);
+            response.dob = new Date(response.dob);
+            this.setState({
+              user: response,
+              userAux: response,
+            });
+            this.setState({isUpdating: false});
+            this.displayToast('Votre profil a été mis à jour.');
+          })
+          .catch((err) => {
+            console.error(err);
+            this.setState({isUpdating: false});
+          });
+      }
+    } else {
+      alert('Vérifiez les champs.');
     }
-    const updatedUser = {...this.state.user, picture: pictureUrl};
-    updateUser(updatedUser)
-      .then((response) => {
-        console.log('UPDATED USER', response);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
   };
 
   showDatepicker = () => {
@@ -176,8 +228,46 @@ export default class LoggedUserProfile extends React.Component {
     });
   };
 
+  renderUpdateButton = () => {
+    let disabled = false;
+    let disabledStyle = {color: PRIMARY_COLOR};
+    const {user, userAux} = this.state;
+
+    if (this.state.isUpdating) {
+      return (
+        <View>
+          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+        </View>
+      );
+    }
+
+    if (_.isEqual(user, userAux) && !this.newSkills()) {
+      disabled = true;
+      disabledStyle = {color: '#999'};
+    }
+    return (
+      <TouchableOpacity
+        disabled={disabled}
+        onPress={() => this.updateProfile()}>
+        <Text style={[{fontWeight: 'bold', fontSize: 18}, disabledStyle]}>
+          Mettre à jour
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  isValidForm = () => {
+    const {name, phone, address} = this.state.user;
+    if (name.length === 0 || phone.length !== 8 || address.length === 0) {
+      return false;
+    }
+    return true;
+  };
+
   render() {
     const {name, phone, address, dob, picture, role} = this.state.user;
+    const params = this.props.navigation.state.params;
+
     return (
       <View style={styles.mainContainer}>
         <StatusBar
@@ -192,11 +282,7 @@ export default class LoggedUserProfile extends React.Component {
             color={PRIMARY_COLOR}
             onPress={() => this.props.navigation.goBack()}
           />
-          <Text
-            style={{color: PRIMARY_COLOR, fontWeight: 'bold', fontSize: 18}}
-            onPress={() => this.updateProfile()}>
-            Mettre à jour
-          </Text>
+          {this.renderUpdateButton()}
         </View>
         {this.displayLoading()}
         {!this.state.isLoading && (
@@ -246,6 +332,7 @@ export default class LoggedUserProfile extends React.Component {
                   <Text style={styles.labelText}>Téléphone</Text>
                   <TextInput
                     value={phone}
+                    maxLength={8}
                     keyboardType="numeric"
                     style={styles.textInput}
                     onChangeText={(text) =>
@@ -282,7 +369,10 @@ export default class LoggedUserProfile extends React.Component {
                         style={{flex: 1}}
                         onPress={() =>
                           this.props.navigation.navigate('EditSkills', {
-                            selectedSkills: this.state.skills,
+                            selectedSkills:
+                              params !== undefined
+                                ? params.newSkills
+                                : this.state.skills,
                           })
                         }>
                         Modifier vos compétences

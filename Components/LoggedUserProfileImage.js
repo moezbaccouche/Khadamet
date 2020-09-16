@@ -51,6 +51,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'absolute',
     top: 90,
-    left: 200,
+    left: 205,
+    borderColor: SECONDARY_COLOR,
+    borderWidth: 2,
   },
 });

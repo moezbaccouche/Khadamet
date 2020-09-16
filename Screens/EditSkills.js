@@ -173,9 +173,11 @@ export default class EditSkills extends React.Component {
   initSelectedSkills = () => {
     const {selectedSkills} = this.props.navigation.state.params;
     let newSkills = [...this.state.skills];
+
     selectedSkills.map((skill) => {
+      const skillId = skill['id'] || skill['skillId'];
       const skillIndex = this.state.skills.findIndex(
-        (item) => item.id === skill.skillId,
+        (item) => item.id === skillId,
       );
       newSkills[skillIndex].salary = skill.salary;
       newSkills[skillIndex].isSelected = true;
