@@ -16,7 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const initialLayout = {width: Dimensions.get('window').width};
 
-export default function TabViewExample() {
+export default function Requests(props) {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {key: 'pending', title: 'EN ATTENTE'},
@@ -34,11 +34,24 @@ export default function TabViewExample() {
     />
   );
 
-  const renderScene = SceneMap({
-    pending: PendingRequests,
-    accepted: AcceptedRequests,
-    treated: TreatedRequests,
-  });
+  const renderScene = ({route}) => {
+    switch (route.key) {
+      case 'pending':
+        return <PendingRequests navigation={props.navigation} />;
+      case 'accepted':
+        return <AcceptedRequests navigation={props.navigation} />;
+      case 'treated':
+        return <TreatedRequests navigation={props.navigation} />;
+      default:
+        return null;
+    }
+  };
+
+  // const renderScene = SceneMap({
+  //   pending: PendingRequests,
+  //   accepted: AcceptedRequests,
+  //   treated: TreatedRequests,
+  // });
 
   return (
     <View style={styles.mainContainer}>

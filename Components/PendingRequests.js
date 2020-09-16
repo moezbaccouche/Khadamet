@@ -43,6 +43,9 @@ export default class PendingRequests extends React.Component {
         clientPicture={item.client.picture}
         clientName={item.client.name}
         address={item.address}
+        onContainerPress={() => {
+          this.props.navigation.navigate('RequestDetails', {request: item});
+        }}
       />
     );
   };

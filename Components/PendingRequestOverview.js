@@ -1,5 +1,13 @@
 import React from 'react';
-import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Platform,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import {getSkillById} from '../API/skills.data';
@@ -13,11 +21,14 @@ export default class PendingRequestOverview extends React.Component {
       clientPicture,
       clientName,
       address,
+      onContainerPress,
     } = this.props;
     const skill = getSkillById(skillId);
 
     return (
-      <View style={[styles.mainContainer, {backgroundColor: skill.color}]}>
+      <TouchableOpacity
+        style={[styles.mainContainer, {backgroundColor: skill.color}]}
+        onPress={() => onContainerPress()}>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleView}>
             <View style={styles.categoryImageContainer}>
@@ -43,7 +54,13 @@ export default class PendingRequestOverview extends React.Component {
               size={36}
               color={SECONDARY_COLOR}
             />
-            <Text style={[styles.detailText, styles.addressText]}>
+            <Text
+              style={[styles.detailText, styles.addressText]}
+              onPress={() =>
+                Platform.OS === 'ios'
+                  ? Linking.openURL(`maps:?q=${address}`)
+                  : Linking.openURL(`geo:?q=${address}`)
+              }>
               {address}
             </Text>
           </View>
@@ -58,16 +75,19 @@ export default class PendingRequestOverview extends React.Component {
               style={[
                 styles.buttonView,
                 {borderRightWidth: 0.2, borderRightColor: SECONDARY_COLOR},
-              ]}>
+              ]}
+              onPress={() => console.log('Refusé')}>
               <Text style={styles.textColor}>Refuser</Text>
             </TouchableOpacity>
             <View style={styles.verticalDivider} />
-            <TouchableOpacity style={styles.buttonView}>
+            <TouchableOpacity
+              style={styles.buttonView}
+              onPress={() => console.log('Accepté')}>
               <Text style={styles.textColor}>Accepter</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

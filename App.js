@@ -97,7 +97,7 @@ const App = () => {
   //   </AuthContext.Provider>
   // );
 
-  return <Requests />;
+  return <HomeNavigator />;
 };
 
 const HomeNavigator = createStackNavigator(
@@ -168,8 +168,14 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
+    Requests: {
+      screen: Requests,
+      navigationOptions: {
+        header: null,
+      },
+    },
   },
-  {initialRouteName: 'LoggedUserProfile'},
+  {initialRouteName: 'Requests'},
 );
 
 const RegisterStackNavigator = createStackNavigator(
