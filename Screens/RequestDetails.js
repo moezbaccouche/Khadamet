@@ -10,17 +10,98 @@ import {
   TouchableOpacity,
   Linking,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getSkillById} from '../API/skills.data';
-import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
+import {DIY_COLOR, PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import LargeButton from '../Components/LargeButton';
 import moment from 'moment';
+import RequestStatus from '../API/request.status';
+import _ from 'lodash';
+import {updateRequest} from '../API/requests.services';
 
 export default class RequestDetails extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: false,
+      request: {},
+    };
+  }
+
+  acceptRequest = (requestId) => {
+    this.setState({isLoading: true});
+    updateRequest({status: RequestStatus.ACCEPTED}, requestId)
+      .then((response) => {
+        this.setState({
+          request: response,
+          isLoading: false,
+        });
+        console.log('RESPONSE', response);
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({isLoading: false});
+      });
+  };
+
+  rejectRequest = (requestId) => {
+    this.setState({isLoading: true});
+    updateRequest({status: RequestStatus.REJECTED}, requestId)
+      .then((response) => {
+        console.log('RESPONSE', response);
+        this.setState({
+          request: response,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({isLoading: false});
+      });
+  };
+
+  cancelRequest = (requestId) => {
+    this.setState({isLoading: true});
+    updateRequest({status: RequestStatus.CANCELED}, requestId)
+      .then((response) => {
+        console.log('RESPONSE', response);
+        this.setState({
+          request: response,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({isLoading: false});
+      });
+  };
+
+  displayLoading = (color) => {
+    if (this.state.isLoading) {
+      return (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingBottom: 10,
+          }}>
+          <ActivityIndicator color={color} size="large" />
+        </View>
+      );
+    }
+  };
+
   render() {
     const {request} = this.props.navigation.state.params;
     const skill = getSkillById(request.skillId);
+
+    const status = _.isEqual(this.state.request, {})
+      ? request.status
+      : this.state.request.status;
+
+    console.log('STATUS', status);
     return (
       <ScrollView style={styles.mainContainerWrapper}>
         <View style={styles.mainContainer}>
@@ -131,28 +212,46 @@ export default class RequestDetails extends React.Component {
                 </Text>
               </View>
             )}
-            <View style={styles.buttonsView}>
-              <View style={styles.buttonView}>
+            {this.displayLoading(skill.color)}
+            {status === RequestStatus.PENDING && !this.state.isLoading && (
+              <View style={styles.buttonsView}>
+                <View style={styles.buttonView}>
+                  <LargeButton
+                    backgroundColor={SECONDARY_COLOR}
+                    color="#FC4850"
+                    text="Refuser"
+                    borderColor="#FC4850"
+                    fontWeight="bold"
+                    borderRadius={15}
+                    onPress={() => this.rejectRequest(request.id)}
+                  />
+                </View>
+                <View style={styles.buttonView}>
+                  <LargeButton
+                    backgroundColor={PRIMARY_COLOR}
+                    color={SECONDARY_COLOR}
+                    text="Accepter"
+                    borderColor={PRIMARY_COLOR}
+                    fontWeight="bold"
+                    borderRadius={15}
+                    onPress={() => this.acceptRequest(request.id)}
+                  />
+                </View>
+              </View>
+            )}
+            {status === RequestStatus.ACCEPTED && !this.state.isLoading && (
+              <View style={styles.cancelButtonView}>
                 <LargeButton
                   backgroundColor={SECONDARY_COLOR}
                   color="#FC4850"
-                  text="Refuser"
+                  text="Annuler"
                   borderColor="#FC4850"
                   fontWeight="bold"
                   borderRadius={15}
+                  onPress={() => this.cancelRequest(request.id)}
                 />
               </View>
-              <View style={styles.buttonView}>
-                <LargeButton
-                  backgroundColor={PRIMARY_COLOR}
-                  color={SECONDARY_COLOR}
-                  text="Accepter"
-                  borderColor={PRIMARY_COLOR}
-                  fontWeight="bold"
-                  borderRadius={15}
-                />
-              </View>
-            </View>
+            )}
           </View>
           <View
             style={[
@@ -198,6 +297,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 90,
     left: Dimensions.get('window').width / 2 - 60,
+    elevation: 10,
   },
   callIconContainer: {
     justifyContent: 'center',
@@ -237,14 +337,15 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 16,
   },
   detailText: {
-    fontSize: 18,
+    fontSize: 16,
     paddingLeft: 10,
   },
   requestDescriptionParagrapheView: {
     paddingHorizontal: 20,
+    paddingBottom: 10,
   },
   descriptionText: {
     fontSize: 16,
@@ -256,7 +357,14 @@ const styles = StyleSheet.create({
   },
   buttonView: {
     flex: 0.5,
-    marginVertical: 30,
+    marginTop: 30,
+    marginBottom: 10,
+    marginHorizontal: 20,
+  },
+
+  cancelButtonView: {
+    marginTop: 30,
+    marginBottom: 10,
     marginHorizontal: 20,
   },
 });

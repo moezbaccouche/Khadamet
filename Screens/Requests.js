@@ -57,8 +57,17 @@ export default function Requests(props) {
     <View style={styles.mainContainer}>
       <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
       <View style={styles.headerToolbar}>
-        <Ionicons name="ios-arrow-back-sharp" size={30} color={PRIMARY_COLOR} />
-        <Text style={styles.headerTitle}>Demandes</Text>
+        <View style={{flex: 0.2}}>
+          <Ionicons
+            name="ios-arrow-back-sharp"
+            size={30}
+            color={PRIMARY_COLOR}
+          />
+        </View>
+
+        <View style={{flex: 0.6, alignItems: 'center', paddingRight: 20}}>
+          <Text style={styles.headerTitle}>Demandes</Text>
+        </View>
       </View>
       <TabView
         navigationState={{index, routes}}

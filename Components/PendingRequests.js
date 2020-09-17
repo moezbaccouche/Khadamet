@@ -6,19 +6,26 @@ import {
   ScrollView,
   Image,
   FlatList,
+  ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import RequestOverviewItem from './PendingRequestOverviewItem';
 import PendingRequestOverviewSecondEx from './PendingRequestOverview';
 import PendingRequestOverview from './PendingRequestOverview';
-import {getPendingRequestsForProfessional} from '../API/requests.services';
+import {
+  getPendingRequestsForProfessional,
+  updateRequest,
+} from '../API/requests.services';
+import RequestStatus from '../API/request.status';
 
 export default class PendingRequests extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       pendingRequests: [],
+      isLoading: true,
     };
   }
 
@@ -31,6 +38,7 @@ export default class PendingRequests extends React.Component {
     getPendingRequestsForProfessional(professionalId).then((data) => {
       this.setState({
         pendingRequests: data,
+        isLoading: false,
       });
     });
   };
@@ -46,18 +54,58 @@ export default class PendingRequests extends React.Component {
         onContainerPress={() => {
           this.props.navigation.navigate('RequestDetails', {request: item});
         }}
+        onAccept={() => this.acceptRequest(item.id)}
+        onReject={() => this.rejectRequest(item.id)}
       />
     );
   };
 
+  acceptRequest = (requestId) => {
+    this.setState({isLoading: true});
+    updateRequest({status: RequestStatus.ACCEPTED}, requestId)
+      .then((response) => {
+        console.log('RESPONSE', response);
+        this.loadPendingRequests();
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({isLoading: false});
+      });
+  };
+
+  rejectRequest = (requestId) => {
+    this.setState({isLoading: true});
+    updateRequest({status: RequestStatus.REJECTED}, requestId)
+      .then((response) => {
+        console.log('RESPONSE', response);
+        this.loadPendingRequests();
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({isLoading: false});
+      });
+  };
+
+  displayLoading = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+        </View>
+      );
+    }
+  };
+
   render() {
     return (
-      <FlatList
-        style={styles.mainContainer}
-        data={this.state.pendingRequests}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({item}) => this.renderPendingRequestItem(item)}
-      />
+      <View style={styles.mainContainer}>
+        {this.displayLoading()}
+        <FlatList
+          data={this.state.pendingRequests}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({item}) => this.renderPendingRequestItem(item)}
+        />
+      </View>
     );
   }
 }
@@ -66,6 +114,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     marginHorizontal: 20,
+    justifyContent: 'center',
   },
   headerContainer: {},
   headerToolbar: {
@@ -79,5 +128,10 @@ const styles = StyleSheet.create({
   tabsTitle: {
     textTransform: 'uppercase',
     fontSize: 18,
+  },
+
+  loadingContainer: {
+    position: 'absolute',
+    alignSelf: 'center',
   },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR} from '../assets/colors';
 
@@ -11,6 +11,7 @@ export class TreatedRequestOverviewItem extends React.Component {
       categoryName,
       month,
       day,
+      onPress,
     } = this.props;
     return (
       <View style={styles.mainContainer}>
@@ -20,7 +21,9 @@ export class TreatedRequestOverviewItem extends React.Component {
           </Text>
           <Text style={styles.dayText}>{day}</Text>
         </View>
-        <View style={styles.categoryContainer}>
+        <TouchableOpacity
+          style={styles.categoryContainer}
+          onPress={() => onPress()}>
           <View style={styles.categoryTitleView}>
             <View
               style={[
@@ -36,7 +39,7 @@ export class TreatedRequestOverviewItem extends React.Component {
             size={20}
             color="#B5B5B5"
           />
-        </View>
+        </TouchableOpacity>
       </View>
     );
   }

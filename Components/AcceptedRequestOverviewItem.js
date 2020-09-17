@@ -1,34 +1,42 @@
 import React from 'react';
 import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {getSkillById} from '../API/skills.data';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
+import moment from 'moment';
 
 export default class AcceptedRequestOverviewSecondEx extends React.Component {
   render() {
+    const {
+      skillId,
+      requestDate,
+      clientPicture,
+      clientName,
+      address,
+      onDetailsPress,
+    } = this.props;
+    const skill = getSkillById(skillId);
+
     return (
       <View style={styles.mainContainer}>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleView}>
             <View style={styles.categoryImageContainer}>
-              <Image
-                source={require('../assets/gardening.png')}
-                style={styles.categoryImage}
-              />
+              <Image source={skill.icon} style={styles.categoryImage} />
             </View>
-            <Text style={styles.cardTitle}>Jardinage</Text>
+            <Text style={styles.cardTitle}>{skill.title}</Text>
           </View>
           <View style={styles.dateAndTimeView}>
-            <Text style={styles.dateAndTimeText}>23/08 10:30</Text>
+            <Text style={styles.dateAndTimeText}>
+              {moment(requestDate).format('DD/MM HH:mm')}
+            </Text>
           </View>
         </View>
         <View style={styles.horizontalDivider} />
         <View style={styles.cardBody}>
           <View style={styles.detailRow}>
-            <Image
-              source={require('../assets/profilePicMale.jpg')}
-              style={styles.clientImage}
-            />
-            <Text style={styles.detailText}>Moez Baccouche</Text>
+            <Image source={{uri: clientPicture}} style={styles.clientImage} />
+            <Text style={styles.detailText}>{clientName}</Text>
           </View>
           <View style={styles.detailRow}>
             <Ionicons
@@ -37,7 +45,7 @@ export default class AcceptedRequestOverviewSecondEx extends React.Component {
               color={SECONDARY_COLOR}
             />
             <Text style={[styles.detailText, styles.addressText]}>
-              Route de Sfax, Borjine, M'Saken, Sousse
+              {address}
             </Text>
           </View>
           <View
@@ -47,7 +55,9 @@ export default class AcceptedRequestOverviewSecondEx extends React.Component {
             }}
           />
           <View style={styles.rowButtons}>
-            <TouchableOpacity style={styles.buttonView}>
+            <TouchableOpacity
+              style={styles.buttonView}
+              onPress={() => onDetailsPress()}>
               <Text style={styles.textColor}>Détails</Text>
             </TouchableOpacity>
           </View>

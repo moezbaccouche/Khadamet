@@ -1,6 +1,7 @@
 export default class RequestStatus {
-  static PENDING = 1;
-  static ACCEPTED = 2;
-  static REJECTED = 3;
-  static TREATED = 4;
+  static PENDING = 0;
+  static ACCEPTED = 1;
+  static REJECTED = 2;
+  static TREATED = 3;
+  static CANCELED = 4;
 }

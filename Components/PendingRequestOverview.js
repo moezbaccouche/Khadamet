@@ -22,6 +22,8 @@ export default class PendingRequestOverview extends React.Component {
       clientName,
       address,
       onContainerPress,
+      onAccept,
+      onReject,
     } = this.props;
     const skill = getSkillById(skillId);
 
@@ -76,13 +78,13 @@ export default class PendingRequestOverview extends React.Component {
                 styles.buttonView,
                 {borderRightWidth: 0.2, borderRightColor: SECONDARY_COLOR},
               ]}
-              onPress={() => console.log('Refusé')}>
+              onPress={() => onReject()}>
               <Text style={styles.textColor}>Refuser</Text>
             </TouchableOpacity>
             <View style={styles.verticalDivider} />
             <TouchableOpacity
               style={styles.buttonView}
-              onPress={() => console.log('Accepté')}>
+              onPress={() => onAccept()}>
               <Text style={styles.textColor}>Accepter</Text>
             </TouchableOpacity>
           </View>
