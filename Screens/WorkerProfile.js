@@ -41,6 +41,10 @@ export default class WorkerProfile extends React.Component {
   }
 
   componentDidMount = () => {
+    console.log(
+      'this.props.navigation.state.params.expertId',
+      this.props.navigation.state.params.expertId,
+    );
     this.getExpertDetails();
   };
 
@@ -53,6 +57,7 @@ export default class WorkerProfile extends React.Component {
   getExpertDetails = () => {
     getProfessional(this.props.navigation.state.params.expertId)
       .then((data) => {
+        console.log('DATA', data);
         this.setState({
           expert: data,
           nbReviews: data.reviews.length,

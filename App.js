@@ -40,6 +40,8 @@ import Search from './Screens/Search';
 import Review from './Screens/Review';
 import LoggedUserProfileImage from './Components/LoggedUserProfileImage';
 import EditSkills from './Screens/EditSkills';
+import MyRequests from './Screens/MyRequests';
+import EditRequest from './Screens/EditRequest';
 
 const App = () => {
   // const initialLoginState = {
@@ -174,8 +176,20 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
+    MyRequests: {
+      screen: MyRequests,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    EditRequest: {
+      screen: EditRequest,
+      navigationOptions: {
+        header: null,
+      },
+    },
   },
-  {initialRouteName: 'Requests'},
+  {initialRouteName: 'MyRequests'},
 );
 
 const RegisterStackNavigator = createStackNavigator(

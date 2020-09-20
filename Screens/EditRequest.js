@@ -8,16 +8,18 @@ import {
   TextInput,
   StatusBar,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {SECONDARY_COLOR, STAR_COLOR} from '../assets/colors';
+import {PRIMARY_COLOR, SECONDARY_COLOR, STAR_COLOR} from '../assets/colors';
 import LargeButton from '../Components/LargeButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import RequestStatus from '../API/request.status';
 import RatingStars from '../Components/RatingStars';
+import {updateRequest} from '../API/requests.services';
 
-export default class NewRequest extends React.Component {
+export default class EditRequest extends React.Component {
   constructor(props) {
     const now = new Date();
     const dateNow = moment(
@@ -31,9 +33,19 @@ export default class NewRequest extends React.Component {
       show: false,
       address: '',
       description: '',
+      isLoading: false,
     };
-    console.log(this.state.date);
   }
+
+  componentDidMount = () => {
+    const {request} = this.props.navigation.state.params;
+
+    this.setState({
+      address: request.address,
+      description: request.description,
+      date: new Date(request.date),
+    });
+  };
 
   handleDateChange = () => {
     if (moment(this.state.date).isBefore(new Date(), 'minutes')) {
@@ -91,47 +103,64 @@ export default class NewRequest extends React.Component {
     });
   };
 
-  submitRequest = () => {
+  getProfessionalSkill = () => {
+    const {request} = this.props.navigation.state.params;
+    const professionalSkills = request.professional.skills;
+    const skill = professionalSkills.find(
+      (item) => item.id === request.skillId,
+    );
+
+    return skill;
+  };
+
+  editRequest = () => {
     const {address, description, date} = this.state;
-    const {
-      professionalId,
-      professionalName,
-      skillId,
-      color,
-    } = this.props.navigation.state.params;
-    const clientId = 'aaaaaa123'; // <---- Get the client id from Async storage
+    const {request} = this.props.navigation.state.params;
+    this.setState({isLoading: true});
     if (address.length !== 0) {
-      const newRequest = {
-        skillId,
-        clientId,
-        professionalId,
+      const updatedRequest = {
         date,
         address,
-        status: RequestStatus.PENDING,
+        status: request.status,
         description: description !== '' ? description.trim() : undefined,
       };
-      console.log('NEW REQ', newRequest);
-      this.props.navigation.navigate('RequestSummary', {
-        request: newRequest,
-        professionalName,
-        color,
-      });
+
+      updateRequest(updatedRequest, request.id)
+        .then((response) => {
+          this.setState({isLoading: false});
+          this.props.navigation.navigate('MyRequests', {updated: true});
+        })
+        .catch((err) => {
+          console.error.err(err);
+          this.setState({isLoading: false});
+        });
+      console.log('NEW REQ', updatedRequest);
     } else {
       alert('Veuillez indiquer votre adresse.');
       return;
     }
   };
 
-  render() {
-    const {
-      professionalName,
-      professionalPicture,
-      rating,
-      salary,
-      color,
-    } = this.props.navigation.state.params;
+  displayLoadingOrButton = () => {
+    const {color} = this.props.navigation.state.params;
+    if (this.state.isLoading) {
+      return <ActivityIndicator color={color} size="large" />;
+    }
+    return (
+      <LargeButton
+        backgroundColor={color}
+        color={SECONDARY_COLOR}
+        text="Modifier"
+        borderColor={color}
+        borderRadius={8}
+        onPress={() => this.editRequest()}
+      />
+    );
+  };
 
-    console.log('PARAMS:', this.props.navigation.state.params);
+  render() {
+    const {rating, salary, color, request} = this.props.navigation.state.params;
+    const skill = this.getProfessionalSkill();
     return (
       <ScrollView style={styles.mainContainer}>
         <StatusBar
@@ -150,14 +179,16 @@ export default class NewRequest extends React.Component {
           </View>
           <View style={styles.selectedWorkerDescriptionContainer}>
             <Image
-              source={{uri: professionalPicture}}
+              source={{uri: request.professional.picture}}
               style={styles.workerImage}
             />
-            <Text style={styles.workerFullNameText}>{professionalName}</Text>
+            <Text style={styles.workerFullNameText}>
+              {request.professional.name}
+            </Text>
             <View style={styles.workerRatingView}>
-              <RatingStars rating={rating} />
+              <RatingStars rating={skill.rating} />
             </View>
-            <Text style={styles.workerPriceText}>{salary} DT / H</Text>
+            <Text style={styles.workerPriceText}>{skill.salary} DT / H</Text>
           </View>
         </View>
         <View style={styles.bodyContainer}>
@@ -165,6 +196,7 @@ export default class NewRequest extends React.Component {
             <Text style={styles.labelText}>Adresse</Text>
             <TextInput
               placeholder="Adresse..."
+              value={this.state.address}
               style={[styles.textInput, {borderColor: color}]}
               onChangeText={(text) => this.setState({address: text})}
             />
@@ -206,6 +238,7 @@ export default class NewRequest extends React.Component {
             <Text style={styles.labelText}>Description</Text>
             <TextInput
               placeholder="Description..."
+              value={this.state.description}
               style={[
                 styles.textInput,
                 styles.descriptionText,
@@ -215,16 +248,7 @@ export default class NewRequest extends React.Component {
               onChangeText={(text) => this.setState({description: text})}
             />
           </View>
-          <View style={styles.buttonView}>
-            <LargeButton
-              backgroundColor={color}
-              color={SECONDARY_COLOR}
-              text="Confirmer"
-              borderColor={color}
-              borderRadius={8}
-              onPress={() => this.submitRequest()}
-            />
-          </View>
+          <View style={styles.buttonView}>{this.displayLoadingOrButton()}</View>
         </View>
       </ScrollView>
     );
@@ -308,6 +332,5 @@ const styles = StyleSheet.create({
   dateTimeText: {
     alignSelf: 'center',
     paddingVertical: 5,
-    fontSize: 14,
   },
 });

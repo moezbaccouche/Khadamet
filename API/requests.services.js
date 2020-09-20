@@ -1,5 +1,5 @@
 const PROD_BASE_URL = 'https://khadamet-api.herokuapp.com/requests/';
-const DEV_BASE_URL = 'http://192.168.1.8:3000/requests/';
+const DEV_BASE_URL = 'http://192.168.1.6:3000/requests/';
 
 export const addNewRequest = async (request) => {
   try {
@@ -58,6 +58,16 @@ export const getAcceptedRequestsForProfessional = async (professionalId) => {
 export const getTreatedRequestsForProfessional = async (professionalId) => {
   try {
     const response = await fetch(`${DEV_BASE_URL}treated/${professionalId}`);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const getClientRequests = async (clientId) => {
+  try {
+    const response = await fetch(`${DEV_BASE_URL}clients/${clientId}`);
     const data = await response.json();
     return data;
   } catch (err) {

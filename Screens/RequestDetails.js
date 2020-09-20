@@ -93,6 +93,58 @@ export default class RequestDetails extends React.Component {
     }
   };
 
+  displayClientOrProfessionalView = () => {
+    const {isClientView, request} = this.props.navigation.state.params;
+    if (!isClientView) {
+      //If we navigated from MyRequests to Request details
+      //Display details of professional in the requests details
+      return (
+        <View style={styles.clientDescriptionView}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingLeft: 20,
+            }}>
+            <Image
+              source={{uri: request.client.picture}}
+              style={styles.clientImage}
+            />
+            <Text style={styles.clientNameText}>{request.client.name}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.callIconContainer}
+            onPress={() => Linking.openURL(`tel:${request.client.phone}`)}>
+            <Ionicons name="ios-call-sharp" color={SECONDARY_COLOR} size={25} />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    //If we navigated from All Requests to Request details
+    //Display details of client in the requests details
+    return (
+      <View style={styles.clientDescriptionView}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingLeft: 20,
+          }}>
+          <Image
+            source={{uri: request.professional.picture}}
+            style={styles.clientImage}
+          />
+          <Text style={styles.clientNameText}>{request.professional.name}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.callIconContainer}
+          onPress={() => Linking.openURL(`tel:${request.professional.phone}`)}>
+          <Ionicons name="ios-call-sharp" color={SECONDARY_COLOR} size={25} />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   render() {
     const {request} = this.props.navigation.state.params;
     const skill = getSkillById(request.skillId);
@@ -141,29 +193,7 @@ export default class RequestDetails extends React.Component {
                 marginTop: 10,
               }}
             />
-            <View style={styles.clientDescriptionView}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingLeft: 20,
-                }}>
-                <Image
-                  source={{uri: request.client.picture}}
-                  style={styles.clientImage}
-                />
-                <Text style={styles.clientNameText}>{request.client.name}</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.callIconContainer}
-                onPress={() => Linking.openURL(`tel:${request.client.phone}`)}>
-                <Ionicons
-                  name="ios-call-sharp"
-                  color={SECONDARY_COLOR}
-                  size={25}
-                />
-              </TouchableOpacity>
-            </View>
+            {this.displayClientOrProfessionalView()}
             <View
               style={{
                 height: 0.5,

@@ -1,5 +1,5 @@
 const PROD_BASE_URL = 'https://khadamet-api.herokuapp.com/users/';
-const DEV_BASE_URL = 'http://192.168.1.8:3000/users/';
+const DEV_BASE_URL = 'http://192.168.1.6:3000/users/';
 
 export const userExists = async (email) => {
   try {

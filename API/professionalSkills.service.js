@@ -1,5 +1,5 @@
 const PROD_BASE_URL = 'https://khadamet-api.herokuapp.com/professionalSkills/';
-const DEV_BASE_URL = 'http://192.168.1.8:3000/professionalSkills/';
+const DEV_BASE_URL = 'http://192.168.1.6:3000/professionalSkills/';
 
 export const addProfessionalSkills = async (skills, professionalId) => {
   try {
