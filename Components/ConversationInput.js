@@ -1,25 +1,40 @@
 import React from 'react';
-import {View, Text, TextInput, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 
 export default class ConversationInput extends React.Component {
   render() {
+    const {onSend, isDisabled} = this.props;
+
     return (
       <View style={styles.mainContainer}>
         <TextInput
           style={styles.textInput}
           placeholder="Envoyer un message..."
           multiline={true}
+          {...this.props}
         />
-        <View style={styles.iconContainer}>
+        <TouchableOpacity
+          style={[
+            styles.iconContainer,
+            {backgroundColor: isDisabled ? '#CDCDCD' : PRIMARY_COLOR},
+          ]}
+          disabled={isDisabled}
+          onPress={() => onSend()}>
           <Icon
             name="send"
             color={SECONDARY_COLOR}
             size={20}
             style={{paddingRight: 5}}
           />
-        </View>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -45,7 +60,6 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     borderRadius: 50,
-    backgroundColor: PRIMARY_COLOR,
     alignItems: 'center',
     justifyContent: 'center',
   },

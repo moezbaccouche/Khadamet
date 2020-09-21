@@ -188,8 +188,14 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
+    Conversation: {
+      screen: Conversation,
+      navigationOptions: {
+        header: null,
+      },
+    },
   },
-  {initialRouteName: 'MyRequests'},
+  {initialRouteName: 'Conversation'},
 );
 
 const RegisterStackNavigator = createStackNavigator(
