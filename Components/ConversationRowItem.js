@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
   },
   receiverFullName: {
     fontWeight: 'bold',
-    paddingLeft: 20,
+    paddingLeft: 15,
+    fontSize: 15,
   },
   messageAndUnreadMessagesNumberView: {
     flexDirection: 'row',
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   receiverMessage: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     color: '#818181',
   },
   messageTime: {

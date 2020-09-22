@@ -14,8 +14,9 @@ import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import SearchInput from '../Components/SearchInput';
 import ConversationRowItem from '../Components/ConversationRowItem';
 import {getUserConversations} from '../API/messages.service';
+import {connect} from 'react-redux';
 
-export default class Messages extends React.Component {
+class Messages extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,6 +34,9 @@ export default class Messages extends React.Component {
 
   loadUserConversations = () => {
     getUserConversations(this.loggedUserId).then((data) => {
+      data.map((overview) => {
+        this.props.dispatch({type: 'ADD_OVERVIEW', value: overview});
+      });
       this.setState({
         conversations: data,
         searchedConversations: data,
@@ -119,6 +123,7 @@ export default class Messages extends React.Component {
             data={this.state.searchedConversations}
             keyExtractor={(item) => item.conversationId.toString()}
             renderItem={({item}) => this.renderConversationOverviewItem(item)}
+            extraData={this.props.conversationsOverview}
           />
         </View>
       </View>
@@ -158,3 +163,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    conversationsOverview: state.conversationsOverview,
+  };
+};
+
+export default connect(mapStateToProps)(Messages);

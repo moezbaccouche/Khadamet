@@ -28,11 +28,12 @@ import io from 'socket.io-client';
 import {CHAT_DEV_BASE_URL} from '../API/chat.service';
 import {getUser} from '../API/users.service';
 import {getConversationMessages, persistMessage} from '../API/messages.service';
+import {connect} from 'react-redux';
 
 let unique = 0;
-export default class Conversation extends React.Component {
-  constructor(props, ctx) {
-    super(props, ctx);
+class Conversation extends React.Component {
+  constructor(props) {
+    super(props);
     this.state = {
       log: [],
       msg: '',
@@ -161,29 +162,45 @@ export default class Conversation extends React.Component {
       text: trimmedMsg,
       user: {
         _id: this.loggedUserId,
-        avatar: 'https://placeimg.com/140/140/any',
       },
     };
 
     //Save the msg in the DB
-    persistMessage({
-      id: id,
-      msg: trimmedMsg,
-      senderId: this.loggedUserId,
-      receiverId: this.receiverUser.id,
-      conversationId: this.conversationId,
-      createdAt: creationDate,
-    })
-      .then((data) => console.log('MSG SAVED', data))
-      .catch((err) => console.error(err));
+    // persistMessage({
+    //   id: id,
+    //   msg: trimmedMsg,
+    //   senderId: this.loggedUserId,
+    //   receiverId: this.receiverUser.id,
+    //   conversationId: this.conversationId,
+    //   createdAt: creationDate,
+    // })
+    //   .then((data) => console.log('MSG SAVED', data))
+    //   .catch((err) => console.error(err));
 
-    this.socket.emit('chatToServer', {
-      sender: this.loggedUserId,
-      msg: trimmedMsg,
-      receiverId: receiverId,
-    });
+    // this.socket.emit('chatToServer', {
+    //   sender: this.loggedUserId,
+    //   msg: trimmedMsg,
+    //   receiverId: receiverId,
+    // });
 
     this.addMessage(newMessage);
+
+    const updatedConversationOverview = {
+      receiverUser: {
+        id: this.receiverUser.id,
+        name: this.receiverUser.name,
+        picture: this.receiverUser.picture,
+      },
+      lastMessage: {
+        senderId: this.loggedUserId,
+        msg: trimmedMsg,
+        msgTime: creationDate,
+      },
+      conversationId: this.conversationId,
+    };
+
+    const action = {type: 'ADD_OVERVIEW', value: updatedConversationOverview};
+    this.props.dispatch(action);
   };
 
   addMessage = (newMessage) => {
@@ -196,12 +213,11 @@ export default class Conversation extends React.Component {
   };
 
   onReceiveMessage = (message) => {
-    console.log('RECEIVED', message);
     if (message.sender !== this.loggedUserId) {
-      console.log('HERE');
+      const creationDate = new Date();
       const newMessage = {
         _id: uuidv4(),
-        createdAt: new Date(),
+        createdAt: creationDate,
         text: message.msg,
         user: {
           _id: message.sender,
@@ -209,6 +225,23 @@ export default class Conversation extends React.Component {
         },
       };
       this.addMessage(newMessage);
+
+      const updatedConversationOverview = {
+        receiverUser: {
+          id: this.receiverUser.id,
+          name: this.receiverUser.name,
+          picture: this.receiverUser.picture,
+        },
+        lastMessage: {
+          senderId: this.loggedUserId,
+          msg: message.msg,
+          msgTime: creationDate,
+        },
+        conversationId: this.conversationId,
+      };
+
+      const action = {type: 'ADD_OVERVIEW', value: updatedConversationOverview};
+      this.props.dispatch(action);
     }
   };
 
@@ -267,6 +300,14 @@ export default class Conversation extends React.Component {
         </View>
       );
     }
+  };
+
+  editConversationsOverview = () => {
+    const action = {
+      type: 'ADD_OVERVIEW',
+      value: {lastMessage: {}, conversationId},
+    };
+    this.props.dispatch(action);
   };
 
   render() {
@@ -385,3 +426,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    conversationsOverview: state.conversationsOverview,
+  };
+};
+
+export default connect(mapStateToProps)(Conversation);
