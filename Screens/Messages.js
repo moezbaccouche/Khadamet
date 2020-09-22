@@ -1,76 +1,160 @@
 import React from 'react';
-import {View, StyleSheet, ScrollView, Text, StatusBar} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Text,
+  StatusBar,
+  FlatList,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import SearchInput from '../Components/SearchInput';
 import ConversationRowItem from '../Components/ConversationRowItem';
+import {getUserConversations} from '../API/messages.service';
 
 export default class Messages extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      conversations: [],
+      searchedConversations: [],
+      isLoading: true,
+      searchString: '',
+    };
+  }
+
+  componentDidMount = () => {
+    this.loggedUserId = '5f57a139c1a0390820168023';
+    this.loadUserConversations();
+  };
+
+  loadUserConversations = () => {
+    getUserConversations(this.loggedUserId).then((data) => {
+      this.setState({
+        conversations: data,
+        searchedConversations: data,
+        isLoading: false,
+      });
+    });
+  };
+
+  renderConversationOverviewItem = (item) => {
+    return (
+      <ConversationRowItem
+        senderId={item.lastMessage.senderId}
+        loggedUserId={this.loggedUserId}
+        receiverImage={item.receiverUser.picture}
+        receiverName={item.receiverUser.name}
+        msg={item.lastMessage.msg}
+        msgTime={item.lastMessage.msgTime}
+        nbUnreadMsgs={0}
+        onPress={() => {
+          this.props.navigation.navigate('Conversation', {
+            receiverUser: {
+              id: item.receiverUser.id,
+              picture: item.receiverUser.picture,
+              name: item.receiverUser.name,
+            },
+            conversationId: item.conversationId,
+          });
+        }}
+      />
+    );
+  };
+
+  displayLoading = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+        </View>
+      );
+    }
+  };
+
+  searchConversation = (text) => {
+    const searchString = text.toLowerCase().trim();
+    console.log(searchString);
+    this.setState({
+      searchString: searchString,
+    });
+    if (this.state.searchString.length === 0) {
+      this.setState({searchedConversations: [...this.state.conversations]});
+    } else {
+      this.setState({
+        searchedConversations: [
+          ...this.state.conversations.filter((item) =>
+            item.receiverUser.name.toLowerCase().includes(searchString),
+          ),
+        ],
+      });
+    }
+  };
+
   render() {
     return (
-      <ScrollView style={styles.mainContainerWrapper}>
-        <View style={styles.mainContainer}>
-          <StatusBar
-            barStyle="dark-content"
-            backgroundColor={SECONDARY_COLOR}
-          />
-          <View style={styles.headerToolbar}>
+      <View style={styles.mainContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor={SECONDARY_COLOR} />
+        <View style={styles.headerToolbar}>
+          <View style={{flex: 0.2}}>
             <Ionicons
               name="ios-arrow-back-sharp"
               size={30}
               color={PRIMARY_COLOR}
             />
+          </View>
+          <View style={{flex: 0.6, alignItems: 'center'}}>
             <Text style={styles.headerTitle}>Messages</Text>
           </View>
-          <View style={styles.bodyContainer}>
-            <SearchInput />
-
-            <View style={styles.conversationsItems}>
-              <ConversationRowItem
-                senderImage={require('../assets/profilePic.jpg')}
-                senderName="Lara Croft"
-                msg="Hey Moez ça va ?"
-                msgTime="10:20"
-                nbUnreadMsgs={1}
-              />
-              <ConversationRowItem
-                senderImage={require('../assets/profilePicMale.jpg')}
-                senderName="Moez Baccouche"
-                msg="Bonjour Moez, j'ai besoin de votre aide !"
-                msgTime="11:52"
-                nbUnreadMsgs={0}
-              />
-            </View>
-          </View>
         </View>
-      </ScrollView>
+
+        <View style={styles.bodyContainer}>
+          {this.displayLoading()}
+          <SearchInput onChangeText={(text) => this.searchConversation(text)} />
+          <FlatList
+            style={styles.conversationsItems}
+            data={this.state.searchedConversations}
+            keyExtractor={(item) => item.conversationId.toString()}
+            renderItem={({item}) => this.renderConversationOverviewItem(item)}
+          />
+        </View>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  mainContainerWrapper: {
-    flex: 1,
-    backgroundColor: SECONDARY_COLOR,
-  },
   mainContainer: {
     flex: 1,
-    marginHorizontal: 20,
+    backgroundColor: SECONDARY_COLOR,
   },
   headerToolbar: {
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 20,
   },
   headerTitle: {
     fontSize: 18,
     color: PRIMARY_COLOR,
-    paddingLeft: 20,
   },
   conversationsItems: {
     marginTop: 10,
   },
   bodyContainer: {
     marginTop: 30,
+    marginHorizontal: 20,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: Dimensions.get('window').height / 2,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

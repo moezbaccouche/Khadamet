@@ -7,6 +7,8 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   TextInput,
+  Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
@@ -18,20 +20,24 @@ import Menu, {
   MenuTrigger,
   MenuOptions,
   MenuOption,
+  MenuProvider,
 } from 'react-native-popup-menu';
 import {GiftedChat, Bubble} from 'react-native-gifted-chat';
 import {v4 as uuidv4} from 'uuid';
-import SocketIOClient from 'socket.io-client';
+import io from 'socket.io-client';
 import {CHAT_DEV_BASE_URL} from '../API/chat.service';
+import {getUser} from '../API/users.service';
+import {getConversationMessages, persistMessage} from '../API/messages.service';
 
 let unique = 0;
-var click = 1;
 export default class Conversation extends React.Component {
   constructor(props, ctx) {
     super(props, ctx);
     this.state = {
       log: [],
       msg: '',
+      receiverUser: {},
+      isLoading: true,
       messages: [
         // {
         //   _id: 1,
@@ -56,11 +62,71 @@ export default class Conversation extends React.Component {
       ],
     };
 
-    this.socket = SocketIOClient(CHAT_DEV_BASE_URL);
-    this.socket.on('chatToClient', this.onReceiveMessage);
-
-    this.loggedUserId = uuidv4();
+    this.loggedUserId = '5f57a139c1a0390820168023'; //<--- get from async storage
+    this.receiverUser = this.props.navigation.state.params.receiverUser;
   }
+
+  componentDidMount = () => {
+    this.conversationId = this.props.navigation.state.params.conversationId;
+    const loggedUserId = this.loggedUserId;
+    this.socket = io(CHAT_DEV_BASE_URL);
+    this.socket.on('connect', () => {
+      const socketId = this.socket.id;
+      this.socket.emit('addUser', {userId: loggedUserId, socketId});
+    });
+    this.socket.on('chatToClient', this.onReceiveMessage);
+    this.loadMessages();
+  };
+
+  loadReceiverUserDetails = () => {
+    getUser(this.receiverUserId).then((data) => {
+      this.setState({
+        receiverUser: data,
+      });
+    });
+  };
+
+  loadMessages = () => {
+    getConversationMessages(this.conversationId)
+      .then((data) => {
+        const messages = this.initMessagesArray(data);
+        this.setState({
+          messages: messages,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  initMessagesArray = (data) => {
+    const {receiverUser} = this.props.navigation.state.params;
+    let messages = [];
+    data.map((message) => {
+      let sender = {};
+      if (message.senderId !== this.loggedUserId) {
+        sender = {
+          _id: message.senderId,
+          name: receiverUser.name,
+          avatar: receiverUser.picture,
+        };
+      } else {
+        sender = {
+          _id: this.loggedUserId,
+        };
+      }
+      const newMessage = {
+        _id: message.id,
+        text: message.msg,
+        createdAt: new Date(message.createdAt),
+        user: sender,
+      };
+
+      messages.push(newMessage);
+    });
+    return messages;
+  };
 
   selectNumber(value) {
     this.addLog(`selecting number: ${value}`);
@@ -85,10 +151,13 @@ export default class Conversation extends React.Component {
   }
 
   onSendMessage = (msgText) => {
+    const receiverId = 'BBBB';
     const trimmedMsg = msgText.trim();
+    const id = uuidv4();
+    const creationDate = new Date();
     const newMessage = {
-      _id: uuidv4(),
-      createdAt: new Date(),
+      _id: id,
+      createdAt: creationDate,
       text: trimmedMsg,
       user: {
         _id: this.loggedUserId,
@@ -96,10 +165,22 @@ export default class Conversation extends React.Component {
       },
     };
 
+    //Save the msg in the DB
+    persistMessage({
+      id: id,
+      msg: trimmedMsg,
+      senderId: this.loggedUserId,
+      receiverId: this.receiverUser.id,
+      conversationId: this.conversationId,
+      createdAt: creationDate,
+    })
+      .then((data) => console.log('MSG SAVED', data))
+      .catch((err) => console.error(err));
+
     this.socket.emit('chatToServer', {
       sender: this.loggedUserId,
-      room: 'TEST',
       msg: trimmedMsg,
+      receiverId: receiverId,
     });
 
     this.addMessage(newMessage);
@@ -112,13 +193,6 @@ export default class Conversation extends React.Component {
         msg: '',
       };
     });
-    // () => {
-    //   if (click === 1) {
-    //     click = 2;
-    //   } else {
-    //     click = 1;
-    //   }
-    // },
   };
 
   onReceiveMessage = (message) => {
@@ -185,9 +259,20 @@ export default class Conversation extends React.Component {
     );
   };
 
+  displayLoading = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={PRIMARY_COLOR} size="large" />
+        </View>
+      );
+    }
+  };
+
   render() {
+    const {receiverUser} = this.props.navigation.state.params;
     return (
-      <MenuContext>
+      <MenuProvider>
         <View style={styles.mainContainer}>
           <StatusBar
             backgroundColor={SECONDARY_COLOR}
@@ -203,7 +288,7 @@ export default class Conversation extends React.Component {
               />
             </View>
             <View style={{flex: 0.6, alignItems: 'center'}}>
-              <Text style={styles.headerTitle}>Lara Croft</Text>
+              <Text style={styles.headerTitle}>{receiverUser.name}</Text>
             </View>
             <View style={{flex: 0.2, alignItems: 'flex-end'}}>
               <Menu
@@ -242,38 +327,10 @@ export default class Conversation extends React.Component {
               </Menu>
             </View>
           </View>
-          {/* <ScrollView
-            style={styles.conversationContainer}
-            contentContainerStyle={{flexGrow: 1, justifyContent: 'flex-end'}}> */}
-          {/* <ReceivedMsgItem
-              senderImage={require('../assets/profilePic.jpg')}
-              msg="Bonjour, tu vas bien ?"
-            />
-            <SentMsgItem
-              senderImage={require('../assets/profilePicMale.jpg')}
-              msg="Bonjour, tu vas bien ?"
-            />
-            <ReceivedMsgItem
-              senderImage={require('../assets/profilePic.jpg')}
-              msg="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-            />
-            <SentMsgItem
-              senderImage={require('../assets/profilePicMale.jpg')}
-              msg="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-            />
-            <SentMsgItem
-              senderImage={require('../assets/profilePicMale.jpg')}
-              msg="Hello"
-            />
-            <ReceivedMsgItem
-              senderImage={require('../assets/profilePic.jpg')}
-              msg="dipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-            /> */}
-          {/* </ScrollView> */}
           <View style={{flex: 1, marginHorizontal: 10, marginBottom: 10}}>
+            {this.displayLoading()}
             <GiftedChat
               messages={this.state.messages}
-              // onSend={(messages) => this.onSend(messages)}
               user={{
                 _id: this.loggedUserId,
               }}
@@ -282,13 +339,8 @@ export default class Conversation extends React.Component {
               renderTime={() => {}}
             />
           </View>
-          {/* <KeyboardAvoidingView
-            style={styles.textInputContainer}
-            behavior="height">
-            <ConversationInput />
-          </KeyboardAvoidingView> */}
         </View>
-      </MenuContext>
+      </MenuProvider>
     );
   }
 }
@@ -322,5 +374,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 5,
     paddingHorizontal: 10,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

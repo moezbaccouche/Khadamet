@@ -35,13 +35,15 @@ import ProfessionalSkillItem from './Components/ProfessionalSkillItem';
 import RegisterSkills from './Screens/RegisterSkills';
 import {AuthContext} from './Contexts/authContext';
 import AsyncStorage from '@react-native-community/async-storage';
-import {loginReducer} from './reducers/loginReducer';
+import {loginReducer} from './Store/reducers/loginReducer';
 import Search from './Screens/Search';
 import Review from './Screens/Review';
 import LoggedUserProfileImage from './Components/LoggedUserProfileImage';
 import EditSkills from './Screens/EditSkills';
 import MyRequests from './Screens/MyRequests';
 import EditRequest from './Screens/EditRequest';
+import {Provider} from 'react-redux';
+import Store from './Store/configureStore';
 
 const App = () => {
   // const initialLoginState = {
@@ -99,7 +101,11 @@ const App = () => {
   //   </AuthContext.Provider>
   // );
 
-  return <HomeNavigator />;
+  return (
+    <Provider store={Store}>
+      <HomeNavigator />
+    </Provider>
+  );
 };
 
 const HomeNavigator = createStackNavigator(
@@ -188,6 +194,12 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
+    Messages: {
+      screen: Messages,
+      navigationOptions: {
+        header: null,
+      },
+    },
     Conversation: {
       screen: Conversation,
       navigationOptions: {
@@ -195,7 +207,7 @@ const HomeNavigator = createStackNavigator(
       },
     },
   },
-  {initialRouteName: 'Conversation'},
+  {initialRouteName: 'Messages'},
 );
 
 const RegisterStackNavigator = createStackNavigator(

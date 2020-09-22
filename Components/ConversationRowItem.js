@@ -1,15 +1,17 @@
 import React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
+import moment from 'moment';
 
 export default class ConversationRowItem extends React.Component {
   displayMessage = () => {
-    const {nbUnreadMsgs, msg} = this.props;
+    const {nbUnreadMsgs, msg, senderId, loggedUserId} = this.props;
     const readMsgStyle =
       nbUnreadMsgs > 0 ? {fontWeight: 'bold', color: '#000'} : {};
     return (
       <View style={{flex: 1}}>
-        <Text style={[styles.senderMessage, readMsgStyle]} numberOfLines={1}>
+        <Text style={[styles.receiverMessage, readMsgStyle]} numberOfLines={1}>
+          {senderId === loggedUserId ? 'Vous: ' : ''}
           {msg}
         </Text>
       </View>
@@ -17,15 +19,22 @@ export default class ConversationRowItem extends React.Component {
   };
 
   render() {
-    const {senderImage, senderName, msg, nbUnreadMsgs, msgTime} = this.props;
-    console.log(this.props);
+    const {
+      receiverImage,
+      receiverName,
+      nbUnreadMsgs,
+      msgTime,
+      onPress,
+    } = this.props;
     return (
-      <View style={styles.mainContainer}>
-        <Image source={senderImage} style={styles.senderImage} />
+      <TouchableOpacity style={styles.mainContainer} onPress={() => onPress()}>
+        <Image source={{uri: receiverImage}} style={styles.receiverImage} />
         <View style={styles.messageView}>
-          <View style={styles.senderNameAndTimeView}>
-            <Text style={styles.senderFullName}>{senderName}</Text>
-            <Text style={styles.messageTime}>{msgTime}</Text>
+          <View style={styles.receiverNameAndTimeView}>
+            <Text style={styles.receiverFullName}>{receiverName}</Text>
+            <Text style={styles.messageTime}>
+              {moment(msgTime).format('HH:mm')}
+            </Text>
           </View>
           <View style={styles.messageAndUnreadMessagesNumberView}>
             {this.displayMessage()}
@@ -37,7 +46,7 @@ export default class ConversationRowItem extends React.Component {
             )}
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }
@@ -49,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 10,
   },
-  senderImage: {
+  receiverImage: {
     height: 62,
     width: 62,
     borderRadius: 50,
@@ -57,12 +66,12 @@ const styles = StyleSheet.create({
   messageView: {
     flex: 1,
   },
-  senderNameAndTimeView: {
+  receiverNameAndTimeView: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  senderFullName: {
+  receiverFullName: {
     fontWeight: 'bold',
     paddingLeft: 20,
   },
@@ -84,7 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  senderMessage: {
+  receiverMessage: {
     paddingHorizontal: 20,
     color: '#818181',
   },
