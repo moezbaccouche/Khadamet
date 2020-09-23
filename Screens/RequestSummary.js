@@ -14,7 +14,11 @@ import LargeButton from '../Components/LargeButton';
 import moment from 'moment';
 import {getSkillById} from '../API/skills.data';
 import {addNewRequest} from '../API/requests.services';
-import {sendNotification} from '../API/notifications.service';
+import {
+  createNotification,
+  NEW_REQUEST,
+  sendNotification,
+} from '../API/notifications.service';
 
 export default class RequestSummary extends React.Component {
   constructor(props) {
@@ -23,6 +27,11 @@ export default class RequestSummary extends React.Component {
       isLoading: false,
     };
   }
+
+  componentDidMount = () => {
+    this.loggedUser = '5f579db4c1a0390820168022'; //<--- From Async Storage
+  };
+
   submitRequest = () => {
     this.setState({isLoading: true});
     const {
@@ -33,14 +42,31 @@ export default class RequestSummary extends React.Component {
     const newRequest = {...request, createdAt: new Date()};
     addNewRequest(newRequest).then((response) => {
       console.log('RESPONSE', response);
-      this.setState({isLoading: false});
+
       //Send notification to the professional
       sendNotification(
         'Nouvelle demande',
         "Vous avez une nouvelle demande d'emploi.",
         [professionalPlayerId],
       );
-      this.props.navigation.replace('RequestConfirmation', {color});
+      //Add the notification to DB
+      const newNotification = {
+        senderId: this.loggedUser,
+        receiverId: request.professionalId,
+        type: NEW_REQUEST,
+        createdAt: new Date(),
+        skillId: request.skillId,
+      };
+      console.log('NEW NOTIF', newNotification);
+      createNotification(newNotification)
+        .then((response) => {
+          this.setState({isLoading: false});
+          this.props.navigation.replace('RequestConfirmation', {color});
+        })
+        .catch((err) => {
+          this.setState({isLoading: false});
+          console.error(err);
+        });
     });
   };
 

@@ -207,6 +207,12 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
+    Notifications: {
+      screen: Notifications,
+      navigationOptions: {
+        header: null,
+      },
+    },
   },
   {initialRouteName: 'Home'},
 );

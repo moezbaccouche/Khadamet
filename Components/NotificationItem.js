@@ -28,7 +28,7 @@ export default class NotificationItem extends React.Component {
     const {categoryImage, text, userImage, iconName} = this.props;
     return (
       <View style={styles.mainContainer}>
-        <Image style={styles.userImage} source={userImage} />
+        <Image style={styles.userImage} source={{uri: userImage}} />
         <View style={styles.viewCategoryImage}>
           {this.displayNotificationCategory()}
         </View>
