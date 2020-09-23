@@ -44,6 +44,7 @@ import MyRequests from './Screens/MyRequests';
 import EditRequest from './Screens/EditRequest';
 import {Provider} from 'react-redux';
 import Store from './Store/configureStore';
+import OneSignal from 'react-native-onesignal';
 
 const App = () => {
   // const initialLoginState = {
@@ -207,7 +208,7 @@ const HomeNavigator = createStackNavigator(
       },
     },
   },
-  {initialRouteName: 'Messages'},
+  {initialRouteName: 'Home'},
 );
 
 const RegisterStackNavigator = createStackNavigator(

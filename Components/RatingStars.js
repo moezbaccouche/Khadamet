@@ -9,18 +9,20 @@ export default class RatingStars extends React.Component {
   }
 
   renderStars = (rating) => {
-    const starOutline = <Icon name="star-o" size={18} color={STAR_COLOR} />;
-    const halfStar = <Icon name="star-half" size={18} color={STAR_COLOR} />;
-    const starItem = <Icon name="star" size={18} color={STAR_COLOR} />;
-
     stars = [];
 
     let i = 0;
     for (i; i < rating; i++) {
-      stars = [...stars, starItem];
+      stars = [
+        ...stars,
+        <Icon key={i} name="star" size={18} color={STAR_COLOR} />,
+      ];
     }
     for (i; i < 5; i++) {
-      stars = [...stars, starOutline];
+      stars = [
+        ...stars,
+        <Icon key={i} name="star-o" size={18} color={STAR_COLOR} />,
+      ];
     }
 
     return stars;

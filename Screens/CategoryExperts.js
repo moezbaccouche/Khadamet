@@ -71,7 +71,7 @@ export default class CategoryExperts extends React.Component {
   renderItemProfessional = (item) => {
     console.log(item);
     const {color, skillId} = this.props.navigation.state.params;
-    const {id, name, rating, salary, picture} = item;
+    const {id, name, rating, salary, picture, playerId} = item; //playerId is the device ID of the professional used for sending push notifications
     return (
       <CategoryExpertItem
         name={name}
@@ -87,6 +87,7 @@ export default class CategoryExperts extends React.Component {
             professionalId: id,
             professionalName: name,
             professionalPicture: picture,
+            professionalPlayerId: playerId,
             rating: rating,
             salary: salary,
             skillId,

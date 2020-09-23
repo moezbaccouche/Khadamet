@@ -14,6 +14,7 @@ import LargeButton from '../Components/LargeButton';
 import moment from 'moment';
 import {getSkillById} from '../API/skills.data';
 import {addNewRequest} from '../API/requests.services';
+import {sendNotification} from '../API/notifications.service';
 
 export default class RequestSummary extends React.Component {
   constructor(props) {
@@ -24,11 +25,21 @@ export default class RequestSummary extends React.Component {
   }
   submitRequest = () => {
     this.setState({isLoading: true});
-    const {request, color} = this.props.navigation.state.params;
+    const {
+      request,
+      color,
+      professionalPlayerId,
+    } = this.props.navigation.state.params;
     const newRequest = {...request, createdAt: new Date()};
     addNewRequest(newRequest).then((response) => {
       console.log('RESPONSE', response);
       this.setState({isLoading: false});
+      //Send notification to the professional
+      sendNotification(
+        'Nouvelle demande',
+        "Vous avez une nouvelle demande d'emploi.",
+        [professionalPlayerId],
+      );
       this.props.navigation.replace('RequestConfirmation', {color});
     });
   };

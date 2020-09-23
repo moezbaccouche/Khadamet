@@ -85,7 +85,7 @@ export default class WorkerProfile extends React.Component {
   renderSkills = (skill) => {
     const skillToRender = getSkillById(skill.id);
     const {title, icon, color, borderColor} = skillToRender;
-    const {name, id, picture} = this.state.expert;
+    const {name, id, picture, playerId} = this.state.expert;
     const loggedUserId = 'aa'; //<---- get id from async storage
     return (
       <SkillRating
@@ -113,6 +113,7 @@ export default class WorkerProfile extends React.Component {
               professionalId: id,
               professionalName: name,
               professionalPicture: picture,
+              professionalPlayerId: playerId,
               rating: skill.rating,
               salary: skill.salary,
               skillId: skill.id,

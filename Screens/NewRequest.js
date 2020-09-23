@@ -32,7 +32,6 @@ export default class NewRequest extends React.Component {
       address: '',
       description: '',
     };
-    console.log(this.state.date);
   }
 
   handleDateChange = () => {
@@ -96,6 +95,7 @@ export default class NewRequest extends React.Component {
     const {
       professionalId,
       professionalName,
+      professionalPlayerId,
       skillId,
       color,
     } = this.props.navigation.state.params;
@@ -114,6 +114,7 @@ export default class NewRequest extends React.Component {
       this.props.navigation.navigate('RequestSummary', {
         request: newRequest,
         professionalName,
+        professionalPlayerId,
         color,
       });
     } else {
@@ -131,7 +132,6 @@ export default class NewRequest extends React.Component {
       color,
     } = this.props.navigation.state.params;
 
-    console.log('PARAMS:', this.props.navigation.state.params);
     return (
       <ScrollView style={styles.mainContainer}>
         <StatusBar

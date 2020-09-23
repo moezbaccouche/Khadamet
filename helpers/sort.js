@@ -10,6 +10,5 @@ export const sortOverviews = (data) => {
     }
     return 0;
   });
-  console.log('data', data);
   return data;
 };

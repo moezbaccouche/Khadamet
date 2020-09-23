@@ -39,7 +39,6 @@ export default class ConversationRowItem extends React.Component {
 
   displayTime = () => {
     const {msgTime} = this.props;
-    console.log('DATE', moment(msgTime).add(7, 'days'));
     const now = new Date();
     if (moment(now).isBetween(moment(msgTime), moment(msgTime).add(1, 'day'))) {
       //Display Time

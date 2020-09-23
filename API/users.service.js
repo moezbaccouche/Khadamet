@@ -115,9 +115,9 @@ export const getUser = async (userId) => {
   }
 };
 
-export const updateUser = async (updatedUser) => {
+export const updateUser = async (updatedUser, userId) => {
   try {
-    const response = await fetch(`${DEV_BASE_URL}${updatedUser.id}`, {
+    const response = await fetch(`${DEV_BASE_URL}${userId}`, {
       method: 'PATCH',
       headers: {
         Accept: 'application/json',

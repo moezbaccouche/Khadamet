@@ -43,6 +43,7 @@ export default class LoggedUserProfile extends React.Component {
   }
 
   componentDidMount = () => {
+    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get from async storage
     this.loadUser();
   };
 
@@ -58,8 +59,7 @@ export default class LoggedUserProfile extends React.Component {
   };
 
   loadUser = () => {
-    const loggedUserId = '5f579c0fc1a039082016801e'; //<--- get from async storage
-    getUser(loggedUserId)
+    getUser(this.loggedUserId)
       .then((data) => {
         data.dob = new Date(data.dob);
         this.setState({
