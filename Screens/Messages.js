@@ -15,12 +15,13 @@ import SearchInput from '../Components/SearchInput';
 import ConversationRowItem from '../Components/ConversationRowItem';
 import {getUserConversations} from '../API/messages.service';
 import {connect} from 'react-redux';
+import _ from 'lodash';
+import {sortOverviews} from '../helpers/sort';
 
 class Messages extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      conversations: [],
       searchedConversations: [],
       isLoading: true,
       searchString: '',
@@ -35,11 +36,12 @@ class Messages extends React.Component {
   loadUserConversations = () => {
     getUserConversations(this.loggedUserId).then((data) => {
       data.map((overview) => {
+        overview.lastMessage.msgTime = new Date(overview.lastMessage.msgTime);
         this.props.dispatch({type: 'ADD_OVERVIEW', value: overview});
       });
       this.setState({
         conversations: data,
-        searchedConversations: data,
+        searchedConversations: this.props.conversationsOverview,
         isLoading: false,
       });
     });
@@ -86,11 +88,13 @@ class Messages extends React.Component {
       searchString: searchString,
     });
     if (this.state.searchString.length === 0) {
-      this.setState({searchedConversations: [...this.state.conversations]});
+      this.setState({
+        searchedConversations: [...this.props.conversationsOverview],
+      });
     } else {
       this.setState({
         searchedConversations: [
-          ...this.state.conversations.filter((item) =>
+          ...this.props.conversationsOverview.filter((item) =>
             item.receiverUser.name.toLowerCase().includes(searchString),
           ),
         ],
@@ -120,7 +124,7 @@ class Messages extends React.Component {
           <SearchInput onChangeText={(text) => this.searchConversation(text)} />
           <FlatList
             style={styles.conversationsItems}
-            data={this.state.searchedConversations}
+            data={sortOverviews(this.state.searchedConversations)}
             keyExtractor={(item) => item.conversationId.toString()}
             renderItem={({item}) => this.renderConversationOverviewItem(item)}
             extraData={this.props.conversationsOverview}
@@ -166,7 +170,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    conversationsOverview: state.conversationsOverview,
+    conversationsOverview: sortOverviews(state.conversationsOverview),
   };
 };
 

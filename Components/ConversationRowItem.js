@@ -18,6 +18,46 @@ export default class ConversationRowItem extends React.Component {
     );
   };
 
+  renderFrenchMonthName = (date) => {
+    //Returns capitalized name of the month in french
+    require('moment/locale/fr');
+    moment.locale('fr');
+    return (
+      moment(date).format('MMM').charAt(0).toUpperCase() +
+      moment(date).format('MMM').slice(1)
+    );
+  };
+
+  renderFrenchDayName = (date) => {
+    require('moment/locale/fr');
+    moment.locale('fr');
+    return (
+      moment(date).format('ddd').charAt(0).toUpperCase() +
+      moment(date).format('ddd').slice(1)
+    );
+  };
+
+  displayTime = () => {
+    const {msgTime} = this.props;
+    console.log('DATE', moment(msgTime).add(7, 'days'));
+    const now = new Date();
+    if (moment(now).isBetween(moment(msgTime), moment(msgTime).add(1, 'day'))) {
+      //Display Time
+      return moment(msgTime).format('HH:mm');
+    } else {
+      if (
+        moment(now).isBetween(moment(msgTime), moment(msgTime).add(7, 'days'))
+      ) {
+        //Display day name
+        return this.renderFrenchDayName(msgTime);
+      }
+      //Display date
+      return `${moment(msgTime).format('DD')} ${this.renderFrenchMonthName(
+        msgTime,
+      )}`;
+    }
+  };
+
   render() {
     const {
       receiverImage,
@@ -32,9 +72,7 @@ export default class ConversationRowItem extends React.Component {
         <View style={styles.messageView}>
           <View style={styles.receiverNameAndTimeView}>
             <Text style={styles.receiverFullName}>{receiverName}</Text>
-            <Text style={styles.messageTime}>
-              {moment(msgTime).format('HH:mm')}
-            </Text>
+            <Text style={styles.messageTime}>{this.displayTime()}</Text>
           </View>
           <View style={styles.messageAndUnreadMessagesNumberView}>
             {this.displayMessage()}

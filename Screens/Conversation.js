@@ -166,22 +166,22 @@ class Conversation extends React.Component {
     };
 
     //Save the msg in the DB
-    // persistMessage({
-    //   id: id,
-    //   msg: trimmedMsg,
-    //   senderId: this.loggedUserId,
-    //   receiverId: this.receiverUser.id,
-    //   conversationId: this.conversationId,
-    //   createdAt: creationDate,
-    // })
-    //   .then((data) => console.log('MSG SAVED', data))
-    //   .catch((err) => console.error(err));
+    persistMessage({
+      id: id,
+      msg: trimmedMsg,
+      senderId: this.loggedUserId,
+      receiverId: this.receiverUser.id,
+      conversationId: this.conversationId,
+      createdAt: creationDate,
+    })
+      .then((data) => console.log('MSG SAVED', data))
+      .catch((err) => console.error(err));
 
-    // this.socket.emit('chatToServer', {
-    //   sender: this.loggedUserId,
-    //   msg: trimmedMsg,
-    //   receiverId: receiverId,
-    // });
+    this.socket.emit('chatToServer', {
+      sender: this.loggedUserId,
+      msg: trimmedMsg,
+      receiverId: receiverId,
+    });
 
     this.addMessage(newMessage);
 
