@@ -19,7 +19,7 @@ import {
   REJECTED_REQUEST,
 } from '../API/notifications.service';
 import {getSkillById} from '../API/skills.data';
-import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
+import {DANGER_COLOR, PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import NotificationItem from '../Components/NotificationItem';
 
 export default class Notifications extends React.Component {
@@ -39,7 +39,6 @@ export default class Notifications extends React.Component {
   loadReceivedNotification = () => {
     getReceivedNotifications(this.loggedUser)
       .then((data) => {
-        console.log('DATA', data);
         this.setState({
           notifications: data,
           isLoading: false,
@@ -55,51 +54,89 @@ export default class Notifications extends React.Component {
     notificationSenderName,
     skillId,
   ) => {
+    let skill = {};
+    if (skillId) {
+      skill = getSkillById(skillId);
+    }
     switch (notificationType) {
       case NEW_REQUEST:
         return {
-          text: `Vous avez une nouvelle demande d'emploi de ${notificationSenderName}`,
-          image: this.getSkillIcon(skillId),
+          text: (
+            <Text>
+              Vous avez une nouvelle demande d'emploi de
+              <Text style={{fontWeight: 'bold'}}>
+                {' '}
+                {notificationSenderName}
+              </Text>
+            </Text>
+          ),
+          image: skill.icon,
+          iconContainerBackground: skill.color,
         };
 
       case ACCEPTED_REQUEST:
         return {
-          text: `${notificationSenderName} a accepté(e) votre demande d'emploi`,
+          text: (
+            <Text>
+              <Text style={{fontWeight: 'bold'}}>{notificationSenderName}</Text>{' '}
+              a accepté votre demande d'emploi
+            </Text>
+          ),
           iconName: 'ios-checkmark-sharp',
+          iconContainerBackground: PRIMARY_COLOR,
         };
 
       case REJECTED_REQUEST:
         return {
-          text: `${notificationSenderName} a refusé(e) votre demande d'emploi`,
+          text: (
+            <Text>
+              <Text style={{fontWeight: 'bold'}}>{notificationSenderName}</Text>{' '}
+              a refusé votre demande d'emploi
+            </Text>
+          ),
           iconName: 'ios-close-sharp',
+          iconContainerBackground: DANGER_COLOR,
         };
 
       case EDITED_REQUEST:
         return {
-          text: `${notificationSenderName} a modifié(e) la demande d'emploi`,
+          text: (
+            <Text>
+              <Text style={{fontWeight: 'bold'}}>{notificationSenderName}</Text>{' '}
+              a modifié la demande d'emploi
+            </Text>
+          ),
           iconName: 'ios-pencil-sharp',
+          iconContainerBackground: PRIMARY_COLOR,
         };
 
       case CANCELED_REQUEST:
         return {
-          text: `${notificationSenderName} a annulé la demande d'emploi`,
+          text: (
+            <Text>
+              <Text style={{fontWeight: 'bold'}}>{notificationSenderName}</Text>{' '}
+              a annulé la demande d'emploi
+            </Text>
+          ),
           iconName: 'ios-trash-sharp',
+          iconContainerBackground: DANGER_COLOR,
         };
 
       case NEW_MESSAGE:
         return {
-          text: `${notificationSenderName} vous a envoyé un nouveau message`,
+          text: (
+            <Text>
+              <Text style={{fontWeight: 'bold'}}>{notificationSenderName}</Text>{' '}
+              vous a envoyé un nouveau message
+            </Text>
+          ),
           iconName: 'ios-chatbubbles-sharp',
+          iconContainerBackground: PRIMARY_COLOR,
         };
 
       default:
         return {};
     }
-  };
-
-  getSkillIcon = (skillId) => {
-    const skill = getSkillById(skillId);
-    return skill.icon;
   };
 
   renderNotificationItem = (item) => {
@@ -114,6 +151,8 @@ export default class Notifications extends React.Component {
         userImage={item.sender.picture}
         categoryImage={notificationInfos.image}
         iconName={notificationInfos.iconName}
+        iconContainerBackground={notificationInfos.iconContainerBackground}
+        time={item.createdAt}
       />
     );
   };
@@ -137,7 +176,6 @@ export default class Notifications extends React.Component {
           </View>
         </View>
         <View style={styles.viewNotificationsContainer}>
-          <Text style={styles.notificationDateText}>Aujourd'hui</Text>
           <FlatList
             data={this.state.notifications}
             keyExtractor={(item) => item.id.toString()}
@@ -167,7 +205,8 @@ const styles = StyleSheet.create({
   },
   viewNotificationsContainer: {
     marginHorizontal: 20,
-    marginTop: 30,
+    marginTop: 20,
+    flex: 1,
   },
   notificationDateText: {
     color: '#767676',

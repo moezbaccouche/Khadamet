@@ -1,34 +1,41 @@
 import React from 'react';
-import {View, Image, Text, StyleSheet, Dimensions} from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {connect} from 'react-redux';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import DrawerMenuItem from '../Components/DrawerMenuItem';
 
-export default class DrawerMenu extends React.Component {
+class DrawerMenu extends React.Component {
   render() {
-    const {userImage, fullName, address} = this.props;
+    const {loggedUser} = this.props;
     return (
       <View style={styles.mainContainer}>
         <View style={styles.headerContainerView}>
           <View style={styles.headerToolbar}>
-            <Ionicons
-              name="ios-close-outline"
-              color={SECONDARY_COLOR}
-              size={35}
-              onPress={() => this.props.navigation.closeDrawer()}
-            />
+            <TouchableOpacity
+              onPress={() => this.props.navigation.closeDrawer()}>
+              <Ionicons
+                name="ios-close-outline"
+                color={SECONDARY_COLOR}
+                size={35}
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.userDescriptionView}>
             <Image
               style={styles.userPicture}
-              source={require('../assets/profilePicMale.jpg')}
+              source={{uri: loggedUser.picture}}
             />
-            {/* <Text style={styles.userFullNameText}>{fullName}</Text>
-            <Text style={styles.userAddressText}>{address}</Text> */}
-            <Text style={styles.userFullNameText}>Moez Baccouche</Text>
-            <Text style={styles.userAddressText}>
-              Route de Sfax, Borjine, M'Saken, Sousse
-            </Text>
+
+            <Text style={styles.userFullNameText}>{loggedUser.name}</Text>
+            <Text style={styles.userAddressText}>{loggedUser.address}</Text>
           </View>
         </View>
         <View style={styles.drawerMenuBodyView}>
@@ -36,10 +43,12 @@ export default class DrawerMenu extends React.Component {
             <DrawerMenuItem
               iconName="ios-chatbubbles-outline"
               title="Messages"
+              onPress={() => this.props.navigation.navigate('Messages')}
             />
             <DrawerMenuItem
               iconName="ios-settings-outline"
               title="Paramètres"
+              onPress={() => this.props.navigation.navigate('Settings')}
             />
           </View>
           <View style={styles.drawerMenuBottomBodyView}>
@@ -102,3 +111,11 @@ const styles = StyleSheet.create({
     flex: 0.6,
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(DrawerMenu);

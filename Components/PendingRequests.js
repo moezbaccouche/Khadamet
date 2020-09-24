@@ -19,6 +19,12 @@ import {
   updateRequest,
 } from '../API/requests.services';
 import RequestStatus from '../API/request.status';
+import {
+  ACCEPTED_REQUEST,
+  createNotification,
+  REJECTED_REQUEST,
+  sendNotification,
+} from '../API/notifications.service';
 
 export default class PendingRequests extends React.Component {
   constructor(props) {
@@ -30,12 +36,12 @@ export default class PendingRequests extends React.Component {
   }
 
   componentDidMount = () => {
+    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
     this.loadPendingRequests();
   };
 
   loadPendingRequests = () => {
-    const professionalId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
-    getPendingRequestsForProfessional(professionalId).then((data) => {
+    getPendingRequestsForProfessional(this.loggedUserId).then((data) => {
       this.setState({
         pendingRequests: data,
         isLoading: false,
@@ -54,17 +60,34 @@ export default class PendingRequests extends React.Component {
         onContainerPress={() => {
           this.props.navigation.navigate('RequestDetails', {request: item});
         }}
-        onAccept={() => this.acceptRequest(item.id)}
-        onReject={() => this.rejectRequest(item.id)}
+        onAccept={() =>
+          this.acceptRequest(item.id, item.client.id, item.client.playerId)
+        }
+        onReject={() =>
+          this.rejectRequest(item.id, item.client.id, item.client.playerId)
+        }
       />
     );
   };
 
-  acceptRequest = (requestId) => {
+  acceptRequest = (requestId, clientId, clientPlayerId) => {
+    //PlayerId is the client deviceId used for sending notifications
     this.setState({isLoading: true});
     updateRequest({status: RequestStatus.ACCEPTED}, requestId)
       .then((response) => {
         console.log('RESPONSE', response);
+        //Send notification and add it to DB
+        sendNotification(
+          'Demande acceptée',
+          "Votre demande d'emploi a été acceptée.",
+          [clientPlayerId],
+        );
+        createNotification({
+          senderId: this.loggedUserId,
+          receiverId: clientId,
+          type: ACCEPTED_REQUEST,
+          createdAt: new Date(),
+        });
         this.loadPendingRequests();
       })
       .catch((err) => {
@@ -73,11 +96,23 @@ export default class PendingRequests extends React.Component {
       });
   };
 
-  rejectRequest = (requestId) => {
+  rejectRequest = (requestId, clientId, clientPlayerId) => {
     this.setState({isLoading: true});
     updateRequest({status: RequestStatus.REJECTED}, requestId)
       .then((response) => {
         console.log('RESPONSE', response);
+        //Send notification and add it to DB
+        sendNotification(
+          'Demande refusée',
+          "Votre demande d'emploi a été refusée.",
+          [clientPlayerId],
+        );
+        createNotification({
+          senderId: this.loggedUserId,
+          receiverId: clientId,
+          type: REJECTED_REQUEST,
+          createdAt: new Date(),
+        });
         this.loadPendingRequests();
       })
       .catch((err) => {

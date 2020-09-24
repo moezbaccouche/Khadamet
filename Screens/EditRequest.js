@@ -18,6 +18,11 @@ import moment from 'moment';
 import RequestStatus from '../API/request.status';
 import RatingStars from '../Components/RatingStars';
 import {updateRequest} from '../API/requests.services';
+import {
+  createNotification,
+  EDITED_REQUEST,
+  sendNotification,
+} from '../API/notifications.service';
 
 export default class EditRequest extends React.Component {
   constructor(props) {
@@ -38,6 +43,7 @@ export default class EditRequest extends React.Component {
   }
 
   componentDidMount = () => {
+    this.loggedUserId = '5f579db4c1a0390820168022'; //<-- get from async storage
     const {request} = this.props.navigation.state.params;
 
     this.setState({
@@ -127,6 +133,18 @@ export default class EditRequest extends React.Component {
 
       updateRequest(updatedRequest, request.id)
         .then((response) => {
+          //Send notification and add it to DB
+          sendNotification(
+            'Demande modifiée',
+            'Le client a modifié la demande.',
+            [request.professional.playerId],
+          );
+          createNotification({
+            senderId: this.loggedUserId,
+            receiverId: request.professional.id,
+            type: EDITED_REQUEST,
+            createdAt: new Date(),
+          });
           this.setState({isLoading: false});
           this.props.navigation.navigate('MyRequests', {updated: true});
         })

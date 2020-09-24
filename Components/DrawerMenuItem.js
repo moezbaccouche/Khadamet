@@ -1,13 +1,13 @@
 import React from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR} from '../assets/colors';
 
 export default class DrawerMenuItem extends React.Component {
   render() {
-    const {iconName, title} = this.props;
+    const {iconName, title, onPress} = this.props;
     return (
-      <View style={styles.mainContainer}>
+      <TouchableOpacity style={styles.mainContainer} onPress={() => onPress()}>
         <Ionicons
           name={iconName}
           title={title}
@@ -15,7 +15,7 @@ export default class DrawerMenuItem extends React.Component {
           color={PRIMARY_COLOR}
         />
         <Text style={styles.itemTitleText}>{title}</Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

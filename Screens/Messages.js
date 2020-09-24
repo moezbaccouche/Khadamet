@@ -8,6 +8,7 @@ import {
   FlatList,
   ActivityIndicator,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
@@ -108,11 +109,13 @@ class Messages extends React.Component {
         <StatusBar barStyle="dark-content" backgroundColor={SECONDARY_COLOR} />
         <View style={styles.headerToolbar}>
           <View style={{flex: 0.2}}>
-            <Ionicons
-              name="ios-arrow-back-sharp"
-              size={30}
-              color={PRIMARY_COLOR}
-            />
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Ionicons
+                name="ios-arrow-back-sharp"
+                size={30}
+                color={PRIMARY_COLOR}
+              />
+            </TouchableOpacity>
           </View>
           <View style={{flex: 0.6, alignItems: 'center'}}>
             <Text style={styles.headerTitle}>Messages</Text>
@@ -145,6 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 20,
+    marginTop: 20,
   },
   headerTitle: {
     fontSize: 18,
@@ -170,7 +174,9 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    conversationsOverview: sortOverviews(state.conversationsOverview),
+    conversationsOverview: sortOverviews(
+      state.editConversationsOverview.conversationsOverview,
+    ),
   };
 };
 

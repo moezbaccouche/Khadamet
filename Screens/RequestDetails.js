@@ -20,6 +20,13 @@ import moment from 'moment';
 import RequestStatus from '../API/request.status';
 import _ from 'lodash';
 import {updateRequest} from '../API/requests.services';
+import {
+  ACCEPTED_REQUEST,
+  CANCELED_REQUEST,
+  createNotification,
+  REJECTED_REQUEST,
+  sendNotification,
+} from '../API/notifications.service';
 
 export default class RequestDetails extends React.Component {
   constructor(props) {
@@ -30,10 +37,26 @@ export default class RequestDetails extends React.Component {
     };
   }
 
-  acceptRequest = (requestId) => {
+  componentDidMount = () => {
+    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
+  };
+
+  acceptRequest = (requestId, clientId, clientPlayerId) => {
     this.setState({isLoading: true});
     updateRequest({status: RequestStatus.ACCEPTED}, requestId)
       .then((response) => {
+        //Send notification and add it to DB
+        sendNotification(
+          'Demande acceptée',
+          "Votre demande d'emploi a été acceptée.",
+          [clientPlayerId],
+        );
+        createNotification({
+          senderId: this.loggedUserId,
+          receiverId: clientId,
+          type: ACCEPTED_REQUEST,
+          createdAt: new Date(),
+        });
         this.setState({
           request: response,
           isLoading: false,
@@ -46,11 +69,23 @@ export default class RequestDetails extends React.Component {
       });
   };
 
-  rejectRequest = (requestId) => {
+  rejectRequest = (requestId, clientId, clientPlayerId) => {
     this.setState({isLoading: true});
     updateRequest({status: RequestStatus.REJECTED}, requestId)
       .then((response) => {
         console.log('RESPONSE', response);
+        //Send notification and add it to DB
+        sendNotification(
+          'Demande refusée',
+          "Votre demande d'emploi a été refusée.",
+          [clientPlayerId],
+        );
+        createNotification({
+          senderId: this.loggedUserId,
+          receiverId: clientId,
+          type: REJECTED_REQUEST,
+          createdAt: new Date(),
+        });
         this.setState({
           request: response,
           isLoading: false,
@@ -62,11 +97,51 @@ export default class RequestDetails extends React.Component {
       });
   };
 
-  cancelRequest = (requestId) => {
+  professionalCancelsRequest = (requestId, clientId, clientPlayerId) => {
     this.setState({isLoading: true});
     updateRequest({status: RequestStatus.CANCELED}, requestId)
       .then((response) => {
         console.log('RESPONSE', response);
+        //Send notification and add it to DB
+        sendNotification(
+          'Demande annulée',
+          'Le professionnel a annulé le rendez-vous prévu.',
+          [clientPlayerId],
+        );
+        createNotification({
+          senderId: this.loggedUserId,
+          receiverId: clientId,
+          type: CANCELED_REQUEST,
+          createdAt: new Date(),
+        });
+        this.setState({
+          request: response,
+          isLoading: false,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({isLoading: false});
+      });
+  };
+
+  clientCancelsRequest = (requestId, professionalId, professionalPlayerId) => {
+    this.setState({isLoading: true});
+    updateRequest({status: RequestStatus.CANCELED}, requestId)
+      .then((response) => {
+        console.log('RESPONSE', response);
+        //Send notification and add it to DB
+        sendNotification(
+          'Demande annulée',
+          'Le client a annulé le rendez-vous prévu.',
+          [professionalPlayerId],
+        );
+        createNotification({
+          senderId: this.loggedUserId,
+          receiverId: professionalId,
+          type: CANCELED_REQUEST,
+          createdAt: new Date(),
+        });
         this.setState({
           request: response,
           isLoading: false,
@@ -146,14 +221,13 @@ export default class RequestDetails extends React.Component {
   };
 
   render() {
-    const {request} = this.props.navigation.state.params;
+    const {request, isClientView} = this.props.navigation.state.params;
     const skill = getSkillById(request.skillId);
 
     const status = _.isEqual(this.state.request, {})
       ? request.status
       : this.state.request.status;
 
-    console.log('STATUS', status);
     return (
       <ScrollView style={styles.mainContainerWrapper}>
         <View style={styles.mainContainer}>
@@ -253,7 +327,13 @@ export default class RequestDetails extends React.Component {
                     borderColor="#FC4850"
                     fontWeight="bold"
                     borderRadius={15}
-                    onPress={() => this.rejectRequest(request.id)}
+                    onPress={() =>
+                      this.rejectRequest(
+                        request.id,
+                        request.client.id,
+                        request.client.playerId,
+                      )
+                    }
                   />
                 </View>
                 <View style={styles.buttonView}>
@@ -264,7 +344,13 @@ export default class RequestDetails extends React.Component {
                     borderColor={PRIMARY_COLOR}
                     fontWeight="bold"
                     borderRadius={15}
-                    onPress={() => this.acceptRequest(request.id)}
+                    onPress={() =>
+                      this.acceptRequest(
+                        request.id,
+                        request.client.id,
+                        request.client.playerId,
+                      )
+                    }
                   />
                 </View>
               </View>
@@ -278,7 +364,21 @@ export default class RequestDetails extends React.Component {
                   borderColor="#FC4850"
                   fontWeight="bold"
                   borderRadius={15}
-                  onPress={() => this.cancelRequest(request.id)}
+                  onPress={() => {
+                    if (isClientView) {
+                      this.clientCancelsRequest(
+                        request.id,
+                        request.professional.id,
+                        request.professional.playerId,
+                      );
+                    } else {
+                      this.professionalCancelsRequest(
+                        request.id,
+                        request.client.id,
+                        request.client.playerId,
+                      );
+                    }
+                  }}
                 />
               </View>
             )}

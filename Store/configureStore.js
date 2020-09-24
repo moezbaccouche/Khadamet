@@ -1,4 +1,7 @@
-import {createStore} from 'redux';
+import {createStore, combineReducers} from 'redux';
 import editConversationsOverview from './reducers/conversationReducer';
+import setLoggedUser from './reducers/loggedUserReducer';
 
-export default createStore(editConversationsOverview);
+export default createStore(
+  combineReducers({editConversationsOverview, setLoggedUser}),
+);

@@ -19,13 +19,14 @@ import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import HomeSearchInput from '../Components/HomeSearchInput';
 import Carousel from 'react-native-snap-carousel';
 import CategoryItem from '../Components/CategoryItem';
-import {getBestProfessionals, updateUser} from '../API/users.service';
+import {getBestProfessionals, getUser, updateUser} from '../API/users.service';
 import BestProfessionalItem from '../Components/BestProfessionaltem';
 import CategoryExpertItem from '../Components/CategoryExpertItem';
 import OneSignal from 'react-native-onesignal';
 import {sendNotification} from '../API/notifications.service';
+import {connect} from 'react-redux';
 
-export default class Home extends React.Component {
+class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,6 +34,7 @@ export default class Home extends React.Component {
       activeCategoryColor: '',
       isLoading: true,
       activeIndex: 3,
+      loggedUser: {},
       carouselItems: [
         {
           id: 0,
@@ -108,6 +110,7 @@ export default class Home extends React.Component {
 
   componentDidMount = () => {
     this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- From async storage
+    this.getLoggedUser();
     this.getBestEmployeesForSkill();
     OneSignal.addEventListener('ids', this.onIds);
   };
@@ -124,17 +127,25 @@ export default class Home extends React.Component {
   }
 
   onIds(device) {
-    console.log('Device info: ', device);
     //Insert or update the user entity playerId in the DB with device id
-    console.log('USER ID', this.loggedUserId);
     updateUser({playerId: device.userId}, this.loggedUserId)
-      .then((data) => {
-        console.log('PlayerID updated', data);
-      })
+      .then((data) => {})
       .catch((err) => {
         console.error(err);
       });
   }
+
+  getLoggedUser = () => {
+    getUser(this.loggedUserId)
+      .then((response) => {
+        // console.log('RES', response);
+        const action = {type: 'SET_LOGGED_USER', value: response};
+        this.props.dispatch(action);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   renderItem = ({item, index}) => {
     return (
@@ -160,7 +171,6 @@ export default class Home extends React.Component {
     this.setState({activeCategoryColor: skill.categoryColor});
     getBestProfessionals(skill.skillId)
       .then((bestProfessionalsForSkill) => {
-        console.log('BEST', bestProfessionalsForSkill);
         this.setState({
           bestProfessionals: bestProfessionalsForSkill,
           isLoading: false,
@@ -191,18 +201,24 @@ export default class Home extends React.Component {
             expertId: id,
           })
         }
-        onContainerPress={() =>
-          this.props.navigation.navigate('NewRequest', {
-            professionalId: id,
-            professionalName: name,
-            professionalPicture: picture,
-            professionalPlayerId: playerId,
-            rating: rating,
-            salary: salary,
-            skillId: skill.skillId,
-            color: this.state.activeCategoryColor,
-          })
-        }
+        onContainerPress={() => {
+          if (this.loggedUserId !== id) {
+            this.props.navigation.navigate('NewRequest', {
+              professionalId: id,
+              professionalName: name,
+              professionalPicture: picture,
+              professionalPlayerId: playerId,
+              rating: rating,
+              salary: salary,
+              skillId: skill.skillId,
+              color: this.state.activeCategoryColor,
+            });
+          } else {
+            this.props.navigation.navigate('WorkerProfile', {
+              expertId: id,
+            });
+          }
+        }}
       />
     );
   };
@@ -220,14 +236,6 @@ export default class Home extends React.Component {
     }
   };
 
-  // onSendNotification = () => {
-  //   sendNotification('Khadamet', "Ceci est une notification envoyée de l'app", [
-  //     '8aa5b226-e3a0-482c-bded-7fb70299eda0',
-  //   ]).then((response) => {
-  //     console.log(response);
-  //   });
-  // };
-
   render() {
     return (
       <ScrollView style={styles.mainContainer}>
@@ -240,12 +248,10 @@ export default class Home extends React.Component {
         <View style={styles.headerContainer}>
           <View style={styles.headerToolbarView}>
             <View style={{flex: 0.2, alignItems: 'center'}}>
-              <Ionicons
-                name="ios-menu-sharp"
-                color="white"
-                size={25}
-                onPress={() => this.props.navigation.openDrawer()}
-              />
+              <TouchableOpacity
+                onPress={() => this.props.navigation.openDrawer()}>
+                <Ionicons name="ios-menu-sharp" color="white" size={25} />
+              </TouchableOpacity>
             </View>
             <View style={{flex: 0.6, alignItems: 'center'}}>
               <Text style={styles.headerTitle}>Accueil</Text>
@@ -395,3 +401,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(Home);

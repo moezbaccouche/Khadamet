@@ -26,6 +26,7 @@ export default class MyRequests extends React.Component {
   }
 
   componentDidMount = () => {
+    this.loggedUserId = '5f579db4c1a0390820168022'; //<-- get from async storage
     this.loadClientRequests();
   };
 
@@ -36,8 +37,7 @@ export default class MyRequests extends React.Component {
   };
 
   loadClientRequests = () => {
-    const clientId = '5f579db4c1a0390820168022'; //<-- get from async storage
-    getClientRequests(clientId)
+    getClientRequests(this.loggedUserId)
       .then((data) => {
         this.setState({
           clientRequests: data,

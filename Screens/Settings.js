@@ -20,13 +20,19 @@ export default class Settings extends React.Component {
             barStyle="dark-content"
           />
           <View style={styles.headerToolbar}>
-            <Ionicons
-              name="ios-arrow-back-sharp"
-              color={PRIMARY_COLOR}
-              size={30}
-              onPress={() => this.props.navigation.goBack()}
-            />
-            <Text style={styles.headerTitle}>Paramètres</Text>
+            <View style={{flex: 0.2}}>
+              <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                <Ionicons
+                  name="ios-arrow-back-sharp"
+                  color={PRIMARY_COLOR}
+                  size={30}
+                  onPress={() => this.props.navigation.goBack()}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{flex: 0.6, alignItems: 'center'}}>
+              <Text style={styles.headerTitle}>Paramètres</Text>
+            </View>
           </View>
           <View style={styles.bodyContainer}>
             <View style={styles.itemsTitleView}>
@@ -95,12 +101,11 @@ const styles = StyleSheet.create({
   headerToolbar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 30,
   },
   headerTitle: {
     fontSize: 18,
     color: PRIMARY_COLOR,
-    paddingLeft: 20,
   },
   bodyContainer: {
     marginTop: 50,

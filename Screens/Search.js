@@ -19,7 +19,7 @@ import {
 } from '../API/users.service';
 import {TextInput} from 'react-native-gesture-handler';
 
-export default class CategoryExperts extends React.Component {
+export default class Search extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

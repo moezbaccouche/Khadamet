@@ -27,8 +27,9 @@ import {uploadProfilePicture} from '../API/firebase.services';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import _ from 'lodash';
 import Toast from 'react-native-root-toast';
+import {connect} from 'react-redux';
 
-export default class LoggedUserProfile extends React.Component {
+class LoggedUserProfile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -99,6 +100,9 @@ export default class LoggedUserProfile extends React.Component {
         takePhotoButtonTitle: 'Prendre une photo',
         chooseFromLibraryButtonTitle: 'Parcourir la galerie',
         cancelButtonTitle: 'Annuler',
+        maxHeight: 500,
+        maxWidth: 500,
+        quality: 0.5,
       },
       (response) => {
         if (response.didCancel) {
@@ -189,15 +193,17 @@ export default class LoggedUserProfile extends React.Component {
           pictureUrl = await uploadProfilePicture(this.state.user.picture);
         }
         const updatedUser = {...this.state.user, picture: pictureUrl};
-        updateUser(updatedUser)
+        updateUser(updatedUser, this.loggedUserId)
           .then((response) => {
             console.log('UPDATED USER', response);
             response.dob = new Date(response.dob);
+            //Update global state
+            this.props.dispatch({type: 'SET_LOGGED_USER', value: response});
             this.setState({
               user: response,
               userAux: response,
+              isUpdating: false,
             });
-            this.setState({isUpdating: false});
             this.displayToast('Votre profil a été mis à jour.');
           })
           .catch((err) => {
@@ -448,3 +454,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(LoggedUserProfile);

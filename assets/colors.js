@@ -9,3 +9,5 @@ export const BABYSITTING_COLOR = '#FF69B4';
 export const PAINTING_COLOR = '#e0c23a';
 export const DIY_COLOR = '#9483ba';
 export const CLEANING_COLOR = '#FAE800';
+export const DANGER_COLOR = '#FC4850';
+export const MUTED_COLOR = '#6D6D6D';

@@ -19,7 +19,7 @@ import Menu, {
   MenuTrigger,
   MenuOptions,
   MenuOption,
-  renderers,
+  MenuProvider,
 } from 'react-native-popup-menu';
 import {getProfessional} from '../API/users.service';
 import {getSkillById} from '../API/skills.data';
@@ -41,10 +41,7 @@ export default class WorkerProfile extends React.Component {
   }
 
   componentDidMount = () => {
-    console.log(
-      'this.props.navigation.state.params.expertId',
-      this.props.navigation.state.params.expertId,
-    );
+    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
     this.getExpertDetails();
   };
 
@@ -57,7 +54,6 @@ export default class WorkerProfile extends React.Component {
   getExpertDetails = () => {
     getProfessional(this.props.navigation.state.params.expertId)
       .then((data) => {
-        console.log('DATA', data);
         this.setState({
           expert: data,
           nbReviews: data.reviews.length,
@@ -86,7 +82,6 @@ export default class WorkerProfile extends React.Component {
     const skillToRender = getSkillById(skill.id);
     const {title, icon, color, borderColor} = skillToRender;
     const {name, id, picture, playerId} = this.state.expert;
-    const loggedUserId = 'aa'; //<---- get id from async storage
     return (
       <SkillRating
         skillName={title}
@@ -95,7 +90,7 @@ export default class WorkerProfile extends React.Component {
         backgroundColor={color}
         color={color}
         borderColor={borderColor}
-        loggedUserId={loggedUserId}
+        loggedUserId={this.loggedUserId}
         professionalId={id}
         onRatingPress={() =>
           this.props.navigation.navigate('Review', {
@@ -108,7 +103,7 @@ export default class WorkerProfile extends React.Component {
           })
         }
         onSkillImagePress={() => {
-          if (loggedUserId !== id) {
+          if (this.loggedUserId !== id) {
             this.props.navigation.navigate('NewRequest', {
               professionalId: id,
               professionalName: name,
@@ -179,9 +174,8 @@ export default class WorkerProfile extends React.Component {
   }
 
   renderMenuOptions = () => {
-    const loggedUserId = 'aaa'; //<--- get from async storage
     const {id, phone} = this.state.expert;
-    if (loggedUserId !== id) {
+    if (this.loggedUserId !== id) {
       return (
         <View>
           <MenuOption
@@ -208,7 +202,7 @@ export default class WorkerProfile extends React.Component {
       <MenuOption
         value={{text: 'edit'}}
         text="Modifier profil"
-        onSelect={() => console.log('Modifier profil')}
+        onSelect={() => this.props.navigation.navigate('LoggedUserProfile')}
         customStyles={{optionText: styles.menuItemsText}}
       />
     );
@@ -216,7 +210,7 @@ export default class WorkerProfile extends React.Component {
 
   render() {
     return (
-      <MenuContext>
+      <MenuProvider>
         <View style={styles.mainContainer}>
           <StatusBar
             translucent={true}
@@ -305,7 +299,7 @@ export default class WorkerProfile extends React.Component {
             </ScrollView>
           )}
         </View>
-      </MenuContext>
+      </MenuProvider>
     );
   }
 }

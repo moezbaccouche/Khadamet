@@ -1,50 +1,13 @@
 import React, {useEffect} from 'react';
-import {View, Text, ActivityIndicator} from 'react-native';
 import Splash from './Screens/Splash';
-import MainMenu from './Screens/MainMenu';
-import Login from './Screens/Login';
-import Register from './Screens/Register';
-import Register2 from './Screens/Register2';
-import Home from './Screens/Home';
-import NotificationItem from './Components/NotificationItem';
-import Notifications from './Screens/Notifications';
-import {createStackNavigator, createDrawerNavigator} from 'react-navigation';
-import DrawerMenu from './Screens/DrawerMenu';
-import WorkerProfile from './Screens/WorkerProfile';
-import SkillRating from './Components/SkillRating';
-import RatingBar from './Components/RatingBar';
-import {PRIMARY_COLOR, STAR_COLOR} from './assets/colors';
-import Example from './Components/PopupMenu';
-import NewRequest from './Screens/NewRequest';
-import RequestSummary from './Screens/RequestSummary';
-import RequestConfirmation from './Screens/RequestConfirmation';
-import LoggedUserProfile from './Screens/LoggedUserProfile';
-import RequestDetails from './Screens/RequestDetails';
-import CategoryExperts from './Screens/CategoryExperts';
-import Settings from './Screens/Settings';
-import Messages from './Screens/Messages';
-import Requests from './Screens/Requests';
-import RequestOverviewItem from './Components/PendingRequestOverviewItem';
-import TreatedRequests from './Components/TreatedRequests';
-import {TreatedRequestOverviewItem} from './Components/TreatedRequestOverviewItem';
-import ReceivedMsgItem from './Components/ReceivedMsgItem';
-import SentMsgItem from './Components/SentMsgItem';
-import ConversationInput from './Components/ConversationInput';
-import Conversation from './Screens/Conversation';
-import ProfessionalSkillItem from './Components/ProfessionalSkillItem';
-import RegisterSkills from './Screens/RegisterSkills';
 import {AuthContext} from './Contexts/authContext';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loginReducer} from './Store/reducers/loginReducer';
-import Search from './Screens/Search';
-import Review from './Screens/Review';
-import LoggedUserProfileImage from './Components/LoggedUserProfileImage';
-import EditSkills from './Screens/EditSkills';
-import MyRequests from './Screens/MyRequests';
-import EditRequest from './Screens/EditRequest';
 import {Provider} from 'react-redux';
 import Store from './Store/configureStore';
-import OneSignal from 'react-native-onesignal';
+import {LogBox} from 'react-native';
+import DrawerNavigator from './Navigation/DrawerNavigation';
+import RegisterStackNavigator from './Navigation/RegisterNavigation';
 
 const App = () => {
   // const initialLoginState = {
@@ -102,226 +65,18 @@ const App = () => {
   //   </AuthContext.Provider>
   // );
 
+  LogBox.ignoreLogs([
+    'DrawerLayoutAndroid drawerPosition',
+    'VirtualizedList',
+    'componentWillReceiveProps has been renamed',
+    'Require cycle',
+  ]);
+
   return (
     <Provider store={Store}>
-      <HomeNavigator />
+      <DrawerNavigator />
     </Provider>
   );
 };
 
-const HomeNavigator = createStackNavigator(
-  {
-    Home: {
-      screen: Home,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    CategoryExperts: {
-      screen: CategoryExperts,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Search: {
-      screen: Search,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Review: {
-      screen: Review,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    WorkerProfile: {
-      screen: WorkerProfile,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    NewRequest: {
-      screen: NewRequest,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    RequestSummary: {
-      screen: RequestSummary,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    RequestDetails: {
-      screen: RequestDetails,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    RequestConfirmation: {
-      screen: RequestConfirmation,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    LoggedUserProfile: {
-      screen: LoggedUserProfile,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    EditSkills: {
-      screen: EditSkills,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Requests: {
-      screen: Requests,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    MyRequests: {
-      screen: MyRequests,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    EditRequest: {
-      screen: EditRequest,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Messages: {
-      screen: Messages,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Conversation: {
-      screen: Conversation,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Notifications: {
-      screen: Notifications,
-      navigationOptions: {
-        header: null,
-      },
-    },
-  },
-  {initialRouteName: 'Home'},
-);
-
-const RegisterStackNavigator = createStackNavigator(
-  {
-    Login: {
-      screen: Login,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    Register: {
-      screen: Register,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    RegisterInfos: {
-      screen: Register2,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    RegisterSkills: {
-      screen: RegisterSkills,
-      navigationOptions: {
-        header: null,
-      },
-    },
-  },
-  {
-    initialRouteName: 'Login',
-  },
-);
-
 export default App;
-
-// export default class App extends React.Component {
-//   constructor(props) {
-//     super(props);
-//   }
-
-//   render() {
-//     const DrawerNavigator = createDrawerNavigator(
-//       {Home: Home},
-//       {
-//         contentComponent: DrawerMenu,
-//       },
-//     );
-
-//     const AppNavigator = createStackNavigator(
-//       {
-//         Home: {
-//           screen: Home,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//         Notifications: {
-//           screen: Notifications,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//         DrawerMenu: {
-//           screen: DrawerMenu,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//       },
-//       {
-//         initialRouteName: 'Home',
-//       },
-//     );
-
-//     const RegisterStackNavigator = createStackNavigator(
-//       {
-//         Login: {
-//           screen: Login,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//         Register: {
-//           screen: Register,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//         RegisterInfos: {
-//           screen: Register2,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//         RegisterSkills: {
-//           screen: RegisterSkills,
-//           navigationOptions: {
-//             header: null,
-//           },
-//         },
-//       },
-//       {
-//         initialRouteName: 'Register',
-//       },
-//     );
-
-//     return <Login />;
-//   }
-// }
