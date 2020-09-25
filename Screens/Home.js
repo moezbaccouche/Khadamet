@@ -15,7 +15,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
+import {
+  BABYSITTING_COLOR,
+  CLEANING_COLOR,
+  COOKING_COLOR,
+  DIY_COLOR,
+  ELECTRICITY_COLOR,
+  PAINTING_COLOR,
+  PLUMBING_COLOR,
+  PRIMARY_COLOR,
+  SECONDARY_COLOR,
+} from '../assets/colors';
 import HomeSearchInput from '../Components/HomeSearchInput';
 import Carousel from 'react-native-snap-carousel';
 import CategoryItem from '../Components/CategoryItem';
@@ -40,21 +50,21 @@ class Home extends React.Component {
           id: 0,
           skillId: '5f56433580ec3e0252ae14df',
           categoryTitle: 'Cuisine',
-          categoryColor: '#ffa030',
+          categoryColor: COOKING_COLOR,
           categoryIcon: require('../assets/hamburger.png'),
         },
         {
           id: 1,
           skillId: '5f512de7b138f130a069a466',
           categoryTitle: 'Electricité',
-          categoryColor: '#74ACD1',
+          categoryColor: ELECTRICITY_COLOR,
           categoryIcon: require('../assets/electricity.png'),
         },
         {
           id: 2,
           skillId: '5f56434c80ec3e0252ae14e1',
           categoryTitle: 'Plomberie',
-          categoryColor: '#67C1B0',
+          categoryColor: PLUMBING_COLOR,
           categoryIcon: require('../assets/water.png'),
         },
         {
@@ -68,28 +78,28 @@ class Home extends React.Component {
           id: 4,
           skillId: '5f56438280ec3e0252ae14e2',
           categoryTitle: 'Bricolage',
-          categoryColor: '#9483ba',
+          categoryColor: DIY_COLOR,
           categoryIcon: require('../assets/drill2.png'),
         },
         {
           id: 5,
           skillId: '5f56438d80ec3e0252ae14e3',
           categoryTitle: 'Baby-sitting',
-          categoryColor: '#FF69B4',
+          categoryColor: BABYSITTING_COLOR,
           categoryIcon: require('../assets/baby.png'),
         },
         {
           id: 6,
           skillId: '5f56439580ec3e0252ae14e4',
           categoryTitle: 'Peinture',
-          categoryColor: '#e0c23a',
+          categoryColor: PAINTING_COLOR,
           categoryIcon: require('../assets/paint.png'),
         },
         {
           id: 7,
           skillId: '5f56434580ec3e0252ae14e0',
           categoryTitle: 'Nettoyage',
-          categoryColor: '#FAE800',
+          categoryColor: CLEANING_COLOR,
           categoryIcon: require('../assets/bucket.png'),
         },
       ],

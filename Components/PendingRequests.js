@@ -11,8 +11,6 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
-import RequestOverviewItem from './PendingRequestOverviewItem';
-import PendingRequestOverviewSecondEx from './PendingRequestOverview';
 import PendingRequestOverview from './PendingRequestOverview';
 import {
   getPendingRequestsForProfessional,
@@ -25,12 +23,13 @@ import {
   REJECTED_REQUEST,
   sendNotification,
 } from '../API/notifications.service';
+import {connect} from 'react-redux';
+import EmptyData from './EmptyData';
 
-export default class PendingRequests extends React.Component {
+class PendingRequests extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      pendingRequests: [],
       isLoading: true,
     };
   }
@@ -42,8 +41,10 @@ export default class PendingRequests extends React.Component {
 
   loadPendingRequests = () => {
     getPendingRequestsForProfessional(this.loggedUserId).then((data) => {
+      data.map((req) => {
+        this.props.dispatch({type: 'SET_PENDING_REQUEST', value: req});
+      });
       this.setState({
-        pendingRequests: data,
         isLoading: false,
       });
     });
@@ -60,35 +61,33 @@ export default class PendingRequests extends React.Component {
         onContainerPress={() => {
           this.props.navigation.navigate('RequestDetails', {request: item});
         }}
-        onAccept={() =>
-          this.acceptRequest(item.id, item.client.id, item.client.playerId)
-        }
-        onReject={() =>
-          this.rejectRequest(item.id, item.client.id, item.client.playerId)
-        }
+        onAccept={() => this.acceptRequest(item)}
+        onReject={() => this.rejectRequest(item)}
       />
     );
   };
 
-  acceptRequest = (requestId, clientId, clientPlayerId) => {
+  acceptRequest = (request) => {
     //PlayerId is the client deviceId used for sending notifications
     this.setState({isLoading: true});
-    updateRequest({status: RequestStatus.ACCEPTED}, requestId)
+    updateRequest({status: RequestStatus.ACCEPTED}, request.id)
       .then((response) => {
         console.log('RESPONSE', response);
         //Send notification and add it to DB
         sendNotification(
           'Demande acceptée',
           "Votre demande d'emploi a été acceptée.",
-          [clientPlayerId],
+          [request.client.playerId],
         );
         createNotification({
           senderId: this.loggedUserId,
-          receiverId: clientId,
+          receiverId: request.client.id,
           type: ACCEPTED_REQUEST,
           createdAt: new Date(),
         });
-        this.loadPendingRequests();
+        this.props.dispatch({type: 'SET_ACCEPTED_REQUEST', value: response});
+        this.props.dispatch({type: 'REMOVE_PENDING_REQUEST', value: response});
+        this.setState({isLoading: false});
       })
       .catch((err) => {
         console.error(err);
@@ -96,24 +95,25 @@ export default class PendingRequests extends React.Component {
       });
   };
 
-  rejectRequest = (requestId, clientId, clientPlayerId) => {
+  rejectRequest = (request) => {
     this.setState({isLoading: true});
-    updateRequest({status: RequestStatus.REJECTED}, requestId)
+    updateRequest({status: RequestStatus.REJECTED}, request.id)
       .then((response) => {
         console.log('RESPONSE', response);
         //Send notification and add it to DB
         sendNotification(
           'Demande refusée',
           "Votre demande d'emploi a été refusée.",
-          [clientPlayerId],
+          [request.client.playerId],
         );
         createNotification({
           senderId: this.loggedUserId,
-          receiverId: clientId,
+          receiverId: request.client.id,
           type: REJECTED_REQUEST,
           createdAt: new Date(),
         });
-        this.loadPendingRequests();
+        this.props.dispatch({type: 'REMOVE_PENDING_REQUEST', value: response});
+        this.setState({isLoading: false});
       })
       .catch((err) => {
         console.error(err);
@@ -131,15 +131,32 @@ export default class PendingRequests extends React.Component {
     }
   };
 
+  renderEmptyLogo = () => {
+    if (this.props.pendingRequests.length === 0 && !this.state.isLoading) {
+      return (
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <EmptyData
+            image={require('../assets/noReqs.png')}
+            text="Aucune demande en attente pour le moment"
+          />
+        </View>
+      );
+    }
+  };
+
   render() {
+    console.log('PROPS', this.props);
     return (
       <View style={styles.mainContainer}>
         {this.displayLoading()}
-        <FlatList
-          data={this.state.pendingRequests}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => this.renderPendingRequestItem(item)}
-        />
+        {this.renderEmptyLogo()}
+        {this.props.pendingRequests.length !== 0 && (
+          <FlatList
+            data={this.props.pendingRequests}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => this.renderPendingRequestItem(item)}
+          />
+        )}
       </View>
     );
   }
@@ -170,3 +187,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    pendingRequests: state.editPendingRequests.pendingRequests,
+  };
+};
+
+export default connect(mapStateToProps)(PendingRequests);

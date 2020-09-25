@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {connect} from 'react-redux';
+import UserRole from '../API/user.roles';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import DrawerMenuItem from '../Components/DrawerMenuItem';
 
@@ -40,6 +41,18 @@ class DrawerMenu extends React.Component {
         </View>
         <View style={styles.drawerMenuBodyView}>
           <View style={styles.drawerMenuTopBodyView}>
+            <DrawerMenuItem
+              iconName="ios-file-tray-full-outline"
+              title="Mes demandes"
+              onPress={() => this.props.navigation.navigate('MyRequests')}
+            />
+            {this.props.loggedUser.role === UserRole.PROFESSIONAL && (
+              <DrawerMenuItem
+                iconName="ios-briefcase-outline"
+                title="Demandes reçues"
+                onPress={() => this.props.navigation.navigate('Requests')}
+              />
+            )}
             <DrawerMenuItem
               iconName="ios-chatbubbles-outline"
               title="Messages"

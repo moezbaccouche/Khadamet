@@ -6,6 +6,7 @@ import {
   StatusBar,
   Text,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import TreatedRequests from '../Components/TreatedRequests';
@@ -47,22 +48,18 @@ export default function Requests(props) {
     }
   };
 
-  // const renderScene = SceneMap({
-  //   pending: PendingRequests,
-  //   accepted: AcceptedRequests,
-  //   treated: TreatedRequests,
-  // });
-
   return (
     <View style={styles.mainContainer}>
       <StatusBar backgroundColor={SECONDARY_COLOR} barStyle="dark-content" />
       <View style={styles.headerToolbar}>
         <View style={{flex: 0.2}}>
-          <Ionicons
-            name="ios-arrow-back-sharp"
-            size={30}
-            color={PRIMARY_COLOR}
-          />
+          <TouchableOpacity onPress={() => props.navigation.goBack()}>
+            <Ionicons
+              name="ios-arrow-back-sharp"
+              size={30}
+              color={PRIMARY_COLOR}
+            />
+          </TouchableOpacity>
         </View>
 
         <View style={{flex: 0.6, alignItems: 'center', paddingRight: 20}}>
@@ -75,7 +72,6 @@ export default function Requests(props) {
         onIndexChange={setIndex}
         initialLayout={initialLayout}
         renderTabBar={renderTabBar}
-        style={{}}
       />
     </View>
   );
@@ -91,6 +87,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     marginHorizontal: 20,
+    marginTop: 20,
   },
   headerTitle: {
     fontSize: 18,

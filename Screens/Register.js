@@ -60,6 +60,9 @@ export default class Register extends React.Component {
         takePhotoButtonTitle: 'Prendre une photo',
         chooseFromLibraryButtonTitle: 'Parcourir la galerie',
         cancelButtonTitle: 'Annuler',
+        maxHeight: 500,
+        maxWidth: 500,
+        quality: 0.5,
       },
       (response) => {
         if (response.didCancel) {

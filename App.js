@@ -70,6 +70,7 @@ const App = () => {
     'VirtualizedList',
     'componentWillReceiveProps has been renamed',
     'Require cycle',
+    'componentWillMount has been renamed',
   ]);
 
   return (

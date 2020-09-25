@@ -58,7 +58,7 @@ export default class Settings extends React.Component {
                   style={styles.iconChevron}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.rowItem}>
+              {/* <TouchableOpacity style={styles.rowItem}>
                 <Text style={styles.rowItemText}>Changer e-mail</Text>
                 <Ionicons
                   name="ios-chevron-forward-sharp"
@@ -80,7 +80,7 @@ export default class Settings extends React.Component {
                 <Text style={[styles.rowItemText, styles.deleteAccountText]}>
                   Supprimer compte
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         </View>

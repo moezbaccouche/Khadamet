@@ -4,9 +4,10 @@ import {View, ImageBackground, StyleSheet, Image, Text} from 'react-native';
 export default class LogoBig extends React.Component {
   render() {
     return (
-      <View>
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <Image
           source={require('../assets/logo.png')}
+          resizeMode="stretch"
           style={styles.imageLogo}
         />
         <Text style={styles.textLogo}>Khadamet</Text>
@@ -17,12 +18,11 @@ export default class LogoBig extends React.Component {
 
 const styles = StyleSheet.create({
   imageLogo: {
-    height: 165,
-    width: 165,
+    height: 120,
+    width: 120,
   },
   textLogo: {
-    fontSize: 36,
+    fontSize: 28,
     color: 'white',
-    fontStyle: 'italic',
   },
 });

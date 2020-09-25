@@ -9,15 +9,16 @@ import {
   FlatList,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {connect} from 'react-redux';
 import {getAcceptedRequestsForProfessional} from '../API/requests.services';
 import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import AcceptedRequestOverviewItem from './AcceptedRequestOverviewItem';
+import EmptyData from './EmptyData';
 
-export default class AcceptedRequests extends React.Component {
+class AcceptedRequests extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      acceptedRequests: [],
       isLoading: true,
     };
   }
@@ -30,8 +31,10 @@ export default class AcceptedRequests extends React.Component {
   loadAcceptedRequests = () => {
     const professionalId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
     getAcceptedRequestsForProfessional(professionalId).then((data) => {
+      data.map((req) => {
+        this.props.dispatch({type: 'SET_ACCEPTED_REQUEST', value: req});
+      });
       this.setState({
-        acceptedRequests: data,
         isLoading: false,
       });
     });
@@ -62,15 +65,31 @@ export default class AcceptedRequests extends React.Component {
     }
   };
 
+  renderEmptyLogo = () => {
+    if (this.props.acceptedRequests.length === 0 && !this.state.isLoading) {
+      return (
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <EmptyData
+            image={require('../assets/noReqs.png')}
+            text="Aucune demande acceptée pour le moment"
+          />
+        </View>
+      );
+    }
+  };
+
   render() {
     return (
       <View style={styles.mainContainer}>
         {this.displayLoading()}
-        <FlatList
-          data={this.state.acceptedRequests}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => this.renderAcceptedRequestItem(item)}
-        />
+        {this.renderEmptyLogo()}
+        {this.props.acceptedRequests.length !== 0 && (
+          <FlatList
+            data={this.props.acceptedRequests}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => this.renderAcceptedRequestItem(item)}
+          />
+        )}
       </View>
     );
   }
@@ -100,3 +119,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    acceptedRequests: state.editAcceptedRequests.acceptedRequests,
+  };
+};
+
+export default connect(mapStateToProps)(AcceptedRequests);

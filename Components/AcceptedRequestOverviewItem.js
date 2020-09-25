@@ -18,7 +18,7 @@ export default class AcceptedRequestOverviewSecondEx extends React.Component {
     const skill = getSkillById(skillId);
 
     return (
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, {backgroundColor: skill.color}]}>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleView}>
             <View style={styles.categoryImageContainer}>

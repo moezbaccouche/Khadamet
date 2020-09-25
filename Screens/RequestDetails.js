@@ -27,8 +27,9 @@ import {
   REJECTED_REQUEST,
   sendNotification,
 } from '../API/notifications.service';
+import {connect} from 'react-redux';
 
-export default class RequestDetails extends React.Component {
+class RequestDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,19 +42,19 @@ export default class RequestDetails extends React.Component {
     this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
   };
 
-  acceptRequest = (requestId, clientId, clientPlayerId) => {
+  acceptRequest = (request) => {
     this.setState({isLoading: true});
-    updateRequest({status: RequestStatus.ACCEPTED}, requestId)
+    updateRequest({status: RequestStatus.ACCEPTED}, request.id)
       .then((response) => {
         //Send notification and add it to DB
         sendNotification(
           'Demande acceptée',
           "Votre demande d'emploi a été acceptée.",
-          [clientPlayerId],
+          [request.client.playerId],
         );
         createNotification({
           senderId: this.loggedUserId,
-          receiverId: clientId,
+          receiverId: request.client.id,
           type: ACCEPTED_REQUEST,
           createdAt: new Date(),
         });
@@ -62,6 +63,8 @@ export default class RequestDetails extends React.Component {
           isLoading: false,
         });
         console.log('RESPONSE', response);
+        this.props.dispatch({type: 'SET_ACCEPTED_REQUEST', value: response});
+        this.props.dispatch({type: 'REMOVE_PENDING_REQUEST', value: response});
       })
       .catch((err) => {
         console.error(err);
@@ -69,20 +72,20 @@ export default class RequestDetails extends React.Component {
       });
   };
 
-  rejectRequest = (requestId, clientId, clientPlayerId) => {
+  rejectRequest = (request) => {
     this.setState({isLoading: true});
-    updateRequest({status: RequestStatus.REJECTED}, requestId)
+    updateRequest({status: RequestStatus.REJECTED}, request.id)
       .then((response) => {
         console.log('RESPONSE', response);
         //Send notification and add it to DB
         sendNotification(
           'Demande refusée',
           "Votre demande d'emploi a été refusée.",
-          [clientPlayerId],
+          [request.client.playerId],
         );
         createNotification({
           senderId: this.loggedUserId,
-          receiverId: clientId,
+          receiverId: request.client.id,
           type: REJECTED_REQUEST,
           createdAt: new Date(),
         });
@@ -90,6 +93,7 @@ export default class RequestDetails extends React.Component {
           request: response,
           isLoading: false,
         });
+        this.props.dispatch({type: 'REMOVE_PENDING_REQUEST', value: response});
       })
       .catch((err) => {
         console.error(err);
@@ -97,27 +101,29 @@ export default class RequestDetails extends React.Component {
       });
   };
 
-  professionalCancelsRequest = (requestId, clientId, clientPlayerId) => {
+  professionalCancelsRequest = (request) => {
     this.setState({isLoading: true});
-    updateRequest({status: RequestStatus.CANCELED}, requestId)
+    updateRequest({status: RequestStatus.CANCELED}, request.id)
       .then((response) => {
         console.log('RESPONSE', response);
         //Send notification and add it to DB
         sendNotification(
           'Demande annulée',
           'Le professionnel a annulé le rendez-vous prévu.',
-          [clientPlayerId],
+          [request.client.playerId],
         );
         createNotification({
           senderId: this.loggedUserId,
-          receiverId: clientId,
+          receiverId: request.client.id,
           type: CANCELED_REQUEST,
           createdAt: new Date(),
         });
+        console.log('RESPO', response);
         this.setState({
           request: response,
           isLoading: false,
         });
+        this.props.dispatch({type: 'REMOVE_ACCEPTED_REQUEST', value: response});
       })
       .catch((err) => {
         console.error(err);
@@ -125,20 +131,20 @@ export default class RequestDetails extends React.Component {
       });
   };
 
-  clientCancelsRequest = (requestId, professionalId, professionalPlayerId) => {
+  clientCancelsRequest = (request) => {
     this.setState({isLoading: true});
-    updateRequest({status: RequestStatus.CANCELED}, requestId)
+    updateRequest({status: RequestStatus.CANCELED}, request.id)
       .then((response) => {
         console.log('RESPONSE', response);
         //Send notification and add it to DB
         sendNotification(
           'Demande annulée',
           'Le client a annulé le rendez-vous prévu.',
-          [professionalPlayerId],
+          [request.professional.playerId],
         );
         createNotification({
           senderId: this.loggedUserId,
-          receiverId: professionalId,
+          receiverId: request.professional.id,
           type: CANCELED_REQUEST,
           createdAt: new Date(),
         });
@@ -146,6 +152,18 @@ export default class RequestDetails extends React.Component {
           request: response,
           isLoading: false,
         });
+        if (request.status === RequestStatus.PENDING) {
+          this.props.dispatch({
+            type: 'REMOVE_PENDING_REQUEST',
+            value: response,
+          });
+        } else {
+          //Request Status is "Accepted"
+          this.props.dispatch({
+            type: 'REMOVE_ACCEPTED_REQUEST',
+            value: response,
+          });
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -173,6 +191,7 @@ export default class RequestDetails extends React.Component {
     if (!isClientView) {
       //If we navigated from MyRequests to Request details
       //Display details of professional in the requests details
+
       return (
         <View style={styles.clientDescriptionView}>
           <View
@@ -220,9 +239,144 @@ export default class RequestDetails extends React.Component {
     );
   };
 
+  displayButtonsViewWhenPending = () => {
+    const {request, isClientView} = this.props.navigation.state.params;
+    const status = _.isEqual(this.state.request, {})
+      ? request.status
+      : this.state.request.status;
+
+    if (status === RequestStatus.PENDING) {
+      const skill = getSkillById(request.skillId);
+      if (isClientView) {
+        return (
+          <View style={styles.buttonsView}>
+            <View style={styles.buttonView}>
+              <LargeButton
+                backgroundColor={SECONDARY_COLOR}
+                color="#FC4850"
+                text="Annuler"
+                borderColor="#FC4850"
+                fontWeight="bold"
+                borderRadius={15}
+                onPress={() =>
+                  this.clientCancelsRequest(
+                    request.id,
+                    request.professional.id,
+                    request.professional.playerId,
+                  )
+                }
+              />
+            </View>
+            <View style={styles.buttonView}>
+              <LargeButton
+                backgroundColor="#5bc0de"
+                color={SECONDARY_COLOR}
+                text="Modifier"
+                borderColor="#5bc0de"
+                fontWeight="bold"
+                borderRadius={15}
+                onPress={() =>
+                  this.props.navigation.navigate('EditRequest', {
+                    request: request,
+                    color: skill.color,
+                  })
+                }
+              />
+            </View>
+          </View>
+        );
+      }
+      return (
+        <View style={styles.buttonsView}>
+          <View style={styles.buttonView}>
+            <LargeButton
+              backgroundColor={SECONDARY_COLOR}
+              color="#FC4850"
+              text="Refuser"
+              borderColor="#FC4850"
+              fontWeight="bold"
+              borderRadius={15}
+              onPress={() => this.rejectRequest(request)}
+            />
+          </View>
+          <View style={styles.buttonView}>
+            <LargeButton
+              backgroundColor={PRIMARY_COLOR}
+              color={SECONDARY_COLOR}
+              text="Accepter"
+              borderColor={PRIMARY_COLOR}
+              fontWeight="bold"
+              borderRadius={15}
+              onPress={() => this.acceptRequest(request)}
+            />
+          </View>
+        </View>
+      );
+    }
+  };
+
+  displayButtonsViewWhenAccepted = () => {
+    const {request, isClientView} = this.props.navigation.state.params;
+    const status = _.isEqual(this.state.request, {})
+      ? request.status
+      : this.state.request.status;
+
+    if (status === RequestStatus.ACCEPTED) {
+      const skill = getSkillById(request.skillId);
+
+      if (isClientView) {
+        return (
+          <View style={styles.buttonsView}>
+            <View style={styles.buttonView}>
+              <LargeButton
+                backgroundColor={SECONDARY_COLOR}
+                color="#FC4850"
+                text="Annuler"
+                borderColor="#FC4850"
+                fontWeight="bold"
+                borderRadius={15}
+                onPress={() => this.clientCancelsRequest(request)}
+              />
+            </View>
+            <View style={styles.buttonView}>
+              <LargeButton
+                backgroundColor="#5bc0de"
+                color={SECONDARY_COLOR}
+                text="Modifier"
+                borderColor="#5bc0de"
+                fontWeight="bold"
+                borderRadius={15}
+                onPress={() =>
+                  this.props.navigation.navigate('EditRequest', {
+                    request: request,
+                    color: skill.color,
+                  })
+                }
+              />
+            </View>
+          </View>
+        );
+      }
+      return (
+        <View style={styles.cancelButtonView}>
+          <LargeButton
+            backgroundColor={SECONDARY_COLOR}
+            color="#FC4850"
+            text="Annuler"
+            borderColor="#FC4850"
+            fontWeight="bold"
+            borderRadius={15}
+            onPress={() => this.professionalCancelsRequest(request)}
+          />
+        </View>
+      );
+    }
+  };
+
   render() {
     const {request, isClientView} = this.props.navigation.state.params;
     const skill = getSkillById(request.skillId);
+    console.log('REQ', request);
 
     const status = _.isEqual(this.state.request, {})
       ? request.status
@@ -317,71 +471,12 @@ export default class RequestDetails extends React.Component {
               </View>
             )}
             {this.displayLoading(skill.color)}
-            {status === RequestStatus.PENDING && !this.state.isLoading && (
-              <View style={styles.buttonsView}>
-                <View style={styles.buttonView}>
-                  <LargeButton
-                    backgroundColor={SECONDARY_COLOR}
-                    color="#FC4850"
-                    text="Refuser"
-                    borderColor="#FC4850"
-                    fontWeight="bold"
-                    borderRadius={15}
-                    onPress={() =>
-                      this.rejectRequest(
-                        request.id,
-                        request.client.id,
-                        request.client.playerId,
-                      )
-                    }
-                  />
-                </View>
-                <View style={styles.buttonView}>
-                  <LargeButton
-                    backgroundColor={PRIMARY_COLOR}
-                    color={SECONDARY_COLOR}
-                    text="Accepter"
-                    borderColor={PRIMARY_COLOR}
-                    fontWeight="bold"
-                    borderRadius={15}
-                    onPress={() =>
-                      this.acceptRequest(
-                        request.id,
-                        request.client.id,
-                        request.client.playerId,
-                      )
-                    }
-                  />
-                </View>
-              </View>
-            )}
-            {status === RequestStatus.ACCEPTED && !this.state.isLoading && (
-              <View style={styles.cancelButtonView}>
-                <LargeButton
-                  backgroundColor={SECONDARY_COLOR}
-                  color="#FC4850"
-                  text="Annuler"
-                  borderColor="#FC4850"
-                  fontWeight="bold"
-                  borderRadius={15}
-                  onPress={() => {
-                    if (isClientView) {
-                      this.clientCancelsRequest(
-                        request.id,
-                        request.professional.id,
-                        request.professional.playerId,
-                      );
-                    } else {
-                      this.professionalCancelsRequest(
-                        request.id,
-                        request.client.id,
-                        request.client.playerId,
-                      );
-                    }
-                  }}
-                />
-              </View>
-            )}
+            {!this.state.isLoading
+              ? this.displayButtonsViewWhenPending()
+              : null}
+            {!this.state.isLoading
+              ? this.displayButtonsViewWhenAccepted()
+              : null}
           </View>
           <View
             style={[
@@ -498,3 +593,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
 });
+
+export default connect()(RequestDetails);

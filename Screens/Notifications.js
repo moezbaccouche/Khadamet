@@ -7,6 +7,8 @@ import {
   StatusBar,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
@@ -20,6 +22,7 @@ import {
 } from '../API/notifications.service';
 import {getSkillById} from '../API/skills.data';
 import {DANGER_COLOR, PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
+import EmptyData from '../Components/EmptyData';
 import NotificationItem from '../Components/NotificationItem';
 
 export default class Notifications extends React.Component {
@@ -157,6 +160,29 @@ export default class Notifications extends React.Component {
     );
   };
 
+  displayLoading = () => {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={PRIMARY_COLOR} />
+        </View>
+      );
+    }
+  };
+
+  displayEmptyNotificationsLogo = () => {
+    if (this.state.notifications.length === 0 && !this.state.isLoading) {
+      return (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <EmptyData
+            image={require('../assets/noNotifications.png')}
+            text="Aucune notification pour le moment"
+          />
+        </View>
+      );
+    }
+  };
+
   render() {
     return (
       <View style={styles.mainContainer}>
@@ -175,13 +201,17 @@ export default class Notifications extends React.Component {
             <Text style={styles.headerTitleText}>Notifications</Text>
           </View>
         </View>
-        <View style={styles.viewNotificationsContainer}>
-          <FlatList
-            data={this.state.notifications}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({item}) => this.renderNotificationItem(item)}
-          />
-        </View>
+        {this.displayEmptyNotificationsLogo()}
+        {this.displayLoading()}
+        {this.state.notifications.length !== 0 && (
+          <View style={styles.viewNotificationsContainer}>
+            <FlatList
+              data={this.state.notifications}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({item}) => this.renderNotificationItem(item)}
+            />
+          </View>
+        )}
       </View>
     );
   }
@@ -211,5 +241,10 @@ const styles = StyleSheet.create({
   notificationDateText: {
     color: '#767676',
     fontSize: 16,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
   },
 });

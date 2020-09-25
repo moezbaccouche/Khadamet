@@ -18,6 +18,7 @@ import Settings from '../Screens/Settings';
 import WorkerProfile from '../Screens/WorkerProfile';
 import Search from '../Screens/Search';
 import DrawerMenu from '../Screens/DrawerMenu';
+import Splash from '../Screens/Splash';
 
 const HomeNavigator = createStackNavigator(
   {
@@ -75,7 +76,7 @@ const HomeNavigator = createStackNavigator(
         header: null,
       },
     },
-    LoggedUserProfil: {
+    LoggedUserProfile: {
       screen: LoggedUserProfile,
       navigationOptions: {
         header: null,
@@ -125,6 +126,12 @@ const HomeNavigator = createStackNavigator(
     },
     Settings: {
       screen: Settings,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    Splash: {
+      screen: Splash,
       navigationOptions: {
         header: null,
       },

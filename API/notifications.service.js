@@ -2,7 +2,7 @@ import {PRIMARY_COLOR} from '../assets/colors';
 
 export const PROD_BASE_URL =
   'https://khadamet-api.herokuapp.com/notifications/';
-export const DEV_BASE_URL = 'http://192.168.1.3:3000/notifications/';
+export const DEV_BASE_URL = 'http://192.168.1.6:3000/notifications/';
 
 export const NEW_REQUEST = 1;
 export const ACCEPTED_REQUEST = 2;

@@ -15,12 +15,12 @@ import {getClientRequests, updateRequest} from '../API/requests.services';
 import MyRequestOverviewItem from '../Components/MyRequestOverviewItem';
 import RequestStatus from '../API/request.status';
 import {getSkillById} from '../API/skills.data';
+import {connect} from 'react-redux';
 
-export default class MyRequests extends React.Component {
+class MyRequests extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      clientRequests: [],
       isLoading: true,
     };
   }
@@ -30,17 +30,13 @@ export default class MyRequests extends React.Component {
     this.loadClientRequests();
   };
 
-  componentWillReceiveProps = (newProps) => {
-    if (newProps.navigation.state.params.updated) {
-      this.loadClientRequests();
-    }
-  };
-
   loadClientRequests = () => {
     getClientRequests(this.loggedUserId)
       .then((data) => {
+        data.map((req) => {
+          this.props.dispatch({type: 'SET_MY_REQUEST', value: req});
+        });
         this.setState({
-          clientRequests: data,
           isLoading: false,
         });
       })
@@ -55,7 +51,7 @@ export default class MyRequests extends React.Component {
   onCancel = (requestId) => {
     updateRequest({status: RequestStatus.CANCELED}, requestId)
       .then((response) => {
-        this.loadClientRequests();
+        this.props.dispatch({type: 'SET_MY_REQUEST', value: response});
       })
       .catch((err) => console.error(err));
   };
@@ -63,7 +59,7 @@ export default class MyRequests extends React.Component {
   onFinish = (requestId) => {
     updateRequest({status: RequestStatus.TREATED}, requestId)
       .then((response) => {
-        this.loadClientRequests();
+        this.props.dispatch({type: 'SET_MY_REQUEST', value: response});
       })
       .catch((err) => console.error(err));
   };
@@ -118,6 +114,7 @@ export default class MyRequests extends React.Component {
   };
 
   render() {
+    console.log('PROPS', this.props.myRequests);
     return (
       <View style={styles.mainContainer}>
         <StatusBar barStyle="dark-content" backgroundColor={SECONDARY_COLOR} />
@@ -132,14 +129,14 @@ export default class MyRequests extends React.Component {
             </TouchableOpacity>
           </View>
           <View style={{flex: 0.6, alignItems: 'center'}}>
-            <Text style={styles.headerTitle}>Mes Demandes</Text>
+            <Text style={styles.headerTitle}>Mes demandes</Text>
           </View>
         </View>
         {this.displayLoading()}
         {!this.state.isLoading && (
           <FlatList
             style={styles.requestsContainer}
-            data={this.state.clientRequests}
+            data={this.props.myRequests}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({item}) => this.renderRequestItem(item)}
           />
@@ -159,6 +156,7 @@ const styles = StyleSheet.create({
     height: 56,
     alignItems: 'center',
     marginHorizontal: 20,
+    marginTop: 20,
   },
   headerTitle: {
     color: PRIMARY_COLOR,
@@ -172,3 +170,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    myRequests: state.editMyRequests.myRequests,
+  };
+};
+
+export default connect(mapStateToProps)(MyRequests);

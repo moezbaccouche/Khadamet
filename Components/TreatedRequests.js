@@ -14,12 +14,13 @@ import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import {TreatedRequestOverviewItem} from './TreatedRequestOverviewItem';
 import moment from 'moment';
 import {getTreatedRequestsForProfessional} from '../API/requests.services';
+import {connect} from 'react-redux';
+import EmptyData from './EmptyData';
 
-export default class TreatedRequests extends React.Component {
+class TreatedRequests extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      treatedRequests: [],
       isLoading: true,
     };
   }
@@ -32,8 +33,10 @@ export default class TreatedRequests extends React.Component {
   loadTreatedRequests = () => {
     const professionalId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
     getTreatedRequestsForProfessional(professionalId).then((data) => {
+      data.map((req) => {
+        this.props.dispatch({type: 'SET_TREATED_REQUEST', value: req});
+      });
       this.setState({
-        treatedRequests: data,
         isLoading: false,
       });
     });
@@ -75,15 +78,31 @@ export default class TreatedRequests extends React.Component {
     }
   };
 
+  renderEmptyLogo = () => {
+    if (this.props.treatedRequests.length === 0 && !this.state.isLoading) {
+      return (
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <EmptyData
+            image={require('../assets/noReqs.png')}
+            text="Aucune demande traitée pour le moment"
+          />
+        </View>
+      );
+    }
+  };
+
   render() {
     return (
       <View style={styles.mainContainer}>
         {this.displayLoading()}
-        <FlatList
-          data={this.state.treatedRequests}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => this.renderTreatedRequestItem(item)}
-        />
+        {this.renderEmptyLogo()}
+        {this.props.treatedRequests.length !== 0 && (
+          <FlatList
+            data={this.props.treatedRequests}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => this.renderTreatedRequestItem(item)}
+          />
+        )}
       </View>
     );
   }
@@ -100,3 +119,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    treatedRequests: state.editTreatedRequests.treatedRequests,
+  };
+};
+
+export default connect(mapStateToProps)(TreatedRequests);

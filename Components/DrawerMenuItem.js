@@ -8,12 +8,7 @@ export default class DrawerMenuItem extends React.Component {
     const {iconName, title, onPress} = this.props;
     return (
       <TouchableOpacity style={styles.mainContainer} onPress={() => onPress()}>
-        <Ionicons
-          name={iconName}
-          title={title}
-          size={42}
-          color={PRIMARY_COLOR}
-        />
+        <Ionicons name={iconName} size={32} color={PRIMARY_COLOR} />
         <Text style={styles.itemTitleText}>{title}</Text>
       </TouchableOpacity>
     );

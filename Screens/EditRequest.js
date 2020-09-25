@@ -23,8 +23,9 @@ import {
   EDITED_REQUEST,
   sendNotification,
 } from '../API/notifications.service';
+import {connect} from 'react-redux';
 
-export default class EditRequest extends React.Component {
+class EditRequest extends React.Component {
   constructor(props) {
     const now = new Date();
     const dateNow = moment(
@@ -146,7 +147,9 @@ export default class EditRequest extends React.Component {
             createdAt: new Date(),
           });
           this.setState({isLoading: false});
-          this.props.navigation.navigate('MyRequests', {updated: true});
+          this.props.dispatch({type: 'SET_MY_REQUEST', value: response});
+
+          this.props.navigation.navigate('MyRequests');
         })
         .catch((err) => {
           console.error.err(err);
@@ -352,3 +355,5 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
 });
+
+export default connect()(EditRequest);
