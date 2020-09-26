@@ -29,6 +29,7 @@ import {CHAT_DEV_BASE_URL} from '../API/chat.service';
 import {getUser} from '../API/users.service';
 import {getConversationMessages, persistMessage} from '../API/messages.service';
 import {connect} from 'react-redux';
+import {createConversation} from '../API/conversations.service';
 
 let unique = 0;
 class Conversation extends React.Component {
@@ -38,29 +39,8 @@ class Conversation extends React.Component {
       log: [],
       msg: '',
       receiverUser: {},
-      isLoading: true,
-      messages: [
-        // {
-        //   _id: 1,
-        //   text: 'Bonjour, tu vas bien ?',
-        //   createdAt: new Date(),
-        //   user: {
-        //     _id: 2,
-        //     name: 'React Native',
-        //     avatar: require('../assets/profilePic.jpg'),
-        //   },
-        // },
-        // {
-        //   _id: 2,
-        //   text: 'Hello developer',
-        //   createdAt: new Date(),
-        //   user: {
-        //     _id: this.loggedUserId,
-        //     name: 'React Native',
-        //     avatar: require('../assets/profilePicMale.jpg'),
-        //   },
-        // },
-      ],
+      isLoading: false,
+      messages: [],
     };
 
     this.loggedUserId = '5f57a139c1a0390820168023'; //<--- get from async storage
@@ -69,6 +49,7 @@ class Conversation extends React.Component {
 
   componentDidMount = () => {
     this.conversationId = this.props.navigation.state.params.conversationId;
+    console.log('PROPS', this.props.navigation.state.params);
     const loggedUserId = this.loggedUserId;
     this.socket = io(CHAT_DEV_BASE_URL);
     this.socket.on('connect', () => {
@@ -79,26 +60,34 @@ class Conversation extends React.Component {
     this.loadMessages();
   };
 
-  loadReceiverUserDetails = () => {
-    getUser(this.receiverUserId).then((data) => {
-      this.setState({
-        receiverUser: data,
-      });
-    });
-  };
+  // loadReceiverUserDetails = () => {
+  //   getUser(this.receiverUserId).then((data) => {
+  //     this.setState({
+  //       receiverUser: data,
+  //     });
+  //   });
+  // };
 
   loadMessages = () => {
-    getConversationMessages(this.conversationId)
-      .then((data) => {
-        const messages = this.initMessagesArray(data);
-        this.setState({
-          messages: messages,
-          isLoading: false,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
+    if (this.conversationId) {
+      this.setState({
+        isLoading: true,
       });
+      getConversationMessages(this.conversationId)
+        .then((data) => {
+          const messages = this.initMessagesArray(data);
+          this.setState({
+            messages: messages,
+            isLoading: false,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            isLoading: false,
+          });
+          console.error(err);
+        });
+    }
   };
 
   initMessagesArray = (data) => {
@@ -151,7 +140,7 @@ class Conversation extends React.Component {
     });
   }
 
-  onSendMessage = (msgText) => {
+  onSendMessage = async (msgText) => {
     const receiverId = 'BBBB';
     const trimmedMsg = msgText.trim();
     const id = uuidv4();
@@ -164,6 +153,19 @@ class Conversation extends React.Component {
         _id: this.loggedUserId,
       },
     };
+
+    if (this.conversationId === null) {
+      //If it's the first message to be sent in the conversation
+      //Create the conversation in the DB and retreive its ID
+      const newConversation = {
+        conversationCreatorId: this.loggedUserId,
+        conversationReceiverId: this.receiverUser.id,
+        createdAt: creationDate,
+      };
+      const conversation = await createConversation(newConversation);
+
+      this.conversationId = conversation._id;
+    }
 
     //Save the msg in the DB
     persistMessage({
@@ -259,6 +261,35 @@ class Conversation extends React.Component {
   handleChangeText = (text) => {
     this.setState({msg: text});
   };
+
+  // chooseImage = () => {
+  //   ImagePicker.showImagePicker(
+  //     {
+  //       title: 'Choisissez une méthode',
+  //       takePhotoButtonTitle: 'Prendre une photo',
+  //       chooseFromLibraryButtonTitle: 'Parcourir la galerie',
+  //       cancelButtonTitle: 'Annuler',
+  //       maxHeight: 500,
+  //       maxWidth: 500,
+  //       quality: 0.5,
+  //     },
+  //     (response) => {
+  //       if (response.didCancel) {
+  //         console.log("L'utilisateur a annulé la prise de photo !");
+  //       } else if (response.error) {
+  //         console.log('Erreur : ' + response.error);
+  //       } else {
+  //         console.log('Photo : ' + response.uri);
+  //         this.setState({
+  //           user: {
+  //             ...this.state.user,
+  //             picture: response.uri,
+  //           },
+  //         });
+  //       }
+  //     },
+  //   );
+  // };
 
   renderBubble = (props) => {
     return (
@@ -396,6 +427,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 20,
+    marginTop: 30,
   },
   conversationContainer: {
     flex: 0.8,

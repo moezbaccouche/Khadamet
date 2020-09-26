@@ -25,6 +25,7 @@ import {getProfessional} from '../API/users.service';
 import {getSkillById} from '../API/skills.data';
 import {ScrollView} from 'react-native-gesture-handler';
 import ReviewItem from '../Components/ReviewItem';
+import {conversationExists} from '../API/conversations.service';
 
 let unique = 0;
 export default class WorkerProfile extends React.Component {
@@ -41,7 +42,7 @@ export default class WorkerProfile extends React.Component {
   }
 
   componentDidMount = () => {
-    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
+    this.loggedUserId = '5f57a139c1a0390820168023'; //<--- get it from async storage
     this.getExpertDetails();
   };
 
@@ -173,6 +174,20 @@ export default class WorkerProfile extends React.Component {
     });
   }
 
+  getConversationId = async () => {
+    let convId = null;
+    const conversation = await conversationExists(
+      this.loggedUserId,
+      this.state.expert.id,
+    );
+    console.log('EXSTS', conversation);
+    if (conversation.exists) {
+      convId = conversation.conversationId;
+    }
+    console.log('CONVID', convId);
+    return convId;
+  };
+
   renderMenuOptions = () => {
     const {id, phone} = this.state.expert;
     if (this.loggedUserId !== id) {
@@ -188,6 +203,16 @@ export default class WorkerProfile extends React.Component {
             value="Disabled"
             text="Envoyer un message"
             customStyles={{optionText: styles.menuItemsText}}
+            onSelect={async () =>
+              this.props.navigation.navigate('Conversation', {
+                receiverUser: {
+                  id,
+                  picture: this.state.expert.picture,
+                  name: this.state.expert.name,
+                },
+                conversationId: await this.getConversationId(),
+              })
+            }
           />
           <MenuOption
             value={{text: 'Hello world!'}}

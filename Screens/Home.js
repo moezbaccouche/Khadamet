@@ -122,6 +122,7 @@ class Home extends React.Component {
     this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- From async storage
     this.getLoggedUser();
     this.getBestEmployeesForSkill();
+
     OneSignal.addEventListener('ids', this.onIds);
   };
 

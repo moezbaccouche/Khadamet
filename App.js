@@ -71,6 +71,7 @@ const App = () => {
     'componentWillReceiveProps has been renamed',
     'Require cycle',
     'componentWillMount has been renamed',
+    'In most cases you should not have more MenuProviders in your app',
   ]);
 
   return (

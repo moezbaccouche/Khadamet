@@ -11,10 +11,15 @@ import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 
 export default class ConversationInput extends React.Component {
   render() {
-    const {onSend, isDisabled} = this.props;
+    const {onSend, isDisabled, onChooseImage} = this.props;
 
     return (
       <View style={styles.mainContainer}>
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => onChooseImage()}>
+          <Icon name="camera" color={PRIMARY_COLOR} size={20} />
+        </TouchableOpacity>
         <TextInput
           style={styles.textInput}
           placeholder="Envoyer un message..."
