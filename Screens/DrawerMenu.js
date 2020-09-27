@@ -10,10 +10,18 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {connect} from 'react-redux';
 import UserRole from '../API/user.roles';
-import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
+import {MUTED_COLOR, PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
 import DrawerMenuItem from '../Components/DrawerMenuItem';
+import {AuthContext} from '../Contexts/authContext';
 
 class DrawerMenu extends React.Component {
+  static contextType = AuthContext;
+
+  onSignout = () => {
+    const {signOut} = this.context;
+    signOut();
+  };
+
   render() {
     const {loggedUser} = this.props;
     return (
@@ -68,6 +76,7 @@ class DrawerMenu extends React.Component {
             <DrawerMenuItem
               iconName="ios-log-out-outline"
               title="Déconnexion"
+              onPress={() => this.onSignout()}
             />
           </View>
         </View>
@@ -92,6 +101,7 @@ const styles = StyleSheet.create({
     width: 120,
     borderRadius: 13,
     marginBottom: 10,
+    backgroundColor: MUTED_COLOR,
   },
   userFullNameText: {
     color: SECONDARY_COLOR,

@@ -23,10 +23,10 @@ class AcceptedRequests extends React.Component {
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     console.log('ACCEPTED DID MOUNT');
     this.loadAcceptedRequests();
-  };
+  }
 
   loadAcceptedRequests = () => {
     const professionalId = '5f579c0fc1a039082016801e'; //<--- get it from async storage

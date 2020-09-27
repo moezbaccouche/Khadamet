@@ -1,5 +1,5 @@
 const PROD_BASE_URL = 'https://khadamet-api.herokuapp.com/skillRatings/';
-const DEV_BASE_URL = 'http://192.168.1.6:3000/skillRatings/';
+const DEV_BASE_URL = 'http://192.168.1.4:3000/skillRatings/';
 
 export const addNewReview = async (review) => {
   try {

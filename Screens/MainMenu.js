@@ -11,19 +11,16 @@ import {
 } from 'react-native';
 import LogoBig from '../Components/LogoBig';
 import LargeButton from '../Components/LargeButton';
+import {PRIMARY_COLOR} from '../assets/colors';
 
 export default class MainMenu extends React.Component {
   render() {
-    StatusBar.setBarStyle('light-content');
-    if (Platform.OS === 'android') {
-      StatusBar.setTranslucent(true);
-      StatusBar.setBackgroundColor('rgba(0,0,0,0)');
-    }
     return (
       <ImageBackground
         style={styles.mainContainer}
         source={require('../assets/splash.png')}
         resizeMode="stretch">
+        <StatusBar barStyle="light-content" backgroundColor={PRIMARY_COLOR} />
         <LogoBig />
         <View style={styles.viewButtons}>
           <LargeButton
@@ -32,6 +29,7 @@ export default class MainMenu extends React.Component {
             text="Connexion"
             backgroundColor="#27ae60"
             fontFamily="Montserrat-Bold"
+            onPress={() => this.props.navigation.navigate('Login')}
           />
           <LargeButton
             color="white"
@@ -39,6 +37,7 @@ export default class MainMenu extends React.Component {
             backgroundColor="#27ae60"
             borderColor="#27ae60"
             fontFamily="Montserrat-Regular"
+            onPress={() => this.props.navigation.navigate('Register')}
           />
         </View>
       </ImageBackground>

@@ -25,10 +25,10 @@ class MyRequests extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f579db4c1a0390820168022'; //<-- get from async storage
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
     this.loadClientRequests();
-  };
+  }
 
   loadClientRequests = () => {
     getClientRequests(this.loggedUserId)
@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     myRequests: state.editMyRequests.myRequests,
+    loggedUser: state.setLoggedUser.loggedUser,
   };
 };
 

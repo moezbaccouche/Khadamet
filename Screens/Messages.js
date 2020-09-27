@@ -27,12 +27,14 @@ class Messages extends React.Component {
       isLoading: true,
       searchString: '',
     };
+    this.loggedUserId = this.props.loggedUser.id;
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f57a139c1a0390820168023';
+  componentDidMount() {
     this.loadUserConversations();
-  };
+
+    this.props.chatSocket.on('chatToClient', this.loadUserConversations);
+  }
 
   loadUserConversations = () => {
     getUserConversations(this.loggedUserId).then((data) => {
@@ -41,7 +43,6 @@ class Messages extends React.Component {
         this.props.dispatch({type: 'ADD_OVERVIEW', value: overview});
       });
       this.setState({
-        conversations: data,
         searchedConversations: this.props.conversationsOverview,
         isLoading: false,
       });
@@ -177,6 +178,8 @@ const mapStateToProps = (state) => {
     conversationsOverview: sortOverviews(
       state.editConversationsOverview.conversationsOverview,
     ),
+    chatSocket: state.setChatSocket.chatSocket,
+    loggedUser: state.setLoggedUser.loggedUser,
   };
 };
 

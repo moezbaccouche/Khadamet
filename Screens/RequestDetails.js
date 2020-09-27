@@ -38,9 +38,9 @@ class RequestDetails extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
-  };
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
+  }
 
   acceptRequest = (request) => {
     this.setState({isLoading: true});
@@ -594,4 +594,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect()(RequestDetails);
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(RequestDetails);

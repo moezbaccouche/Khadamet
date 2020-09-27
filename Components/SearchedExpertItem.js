@@ -1,7 +1,12 @@
 import React from 'react';
 import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {PRIMARY_COLOR, STAR_COLOR, SECONDARY_COLOR} from '../assets/colors';
+import {
+  PRIMARY_COLOR,
+  STAR_COLOR,
+  SECONDARY_COLOR,
+  MUTED_COLOR,
+} from '../assets/colors';
 
 export default class SearchedExpertItem extends React.Component {
   render() {
@@ -72,6 +77,7 @@ const styles = StyleSheet.create({
     width: 90,
     borderTopLeftRadius: 13,
     borderBottomLeftRadius: 13,
+    backgroundColor: MUTED_COLOR,
   },
   ratingAndPriceView: {
     flexDirection: 'row',

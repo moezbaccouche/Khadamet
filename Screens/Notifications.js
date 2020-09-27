@@ -34,10 +34,10 @@ export default class Notifications extends React.Component {
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.loggedUser = '5f579c0fc1a039082016801e'; // <--- Get From Async Storage
     this.loadReceivedNotification();
-  };
+  }
 
   loadReceivedNotification = () => {
     getReceivedNotifications(this.loggedUser)

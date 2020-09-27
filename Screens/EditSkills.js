@@ -109,9 +109,9 @@ export default class EditSkills extends React.Component {
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.initSelectedSkills();
-  };
+  }
 
   editSkillSelection = (skill) => {
     const itemIndex = this.state.skills.findIndex(

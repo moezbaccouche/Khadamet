@@ -1,7 +1,12 @@
 import React from 'react';
 import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {PRIMARY_COLOR, SECONDARY_COLOR, STAR_COLOR} from '../assets/colors';
+import {
+  MUTED_COLOR,
+  PRIMARY_COLOR,
+  SECONDARY_COLOR,
+  STAR_COLOR,
+} from '../assets/colors';
 
 export default class BestProfessionalItem extends React.Component {
   render() {
@@ -45,6 +50,7 @@ const styles = StyleSheet.create({
     width: 110,
     borderTopLeftRadius: 13,
     borderBottomLeftRadius: 13,
+    backgroundColor: MUTED_COLOR,
   },
   employeeDescription: {
     marginLeft: 10,

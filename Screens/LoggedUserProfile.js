@@ -43,10 +43,10 @@ class LoggedUserProfile extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get from async storage
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
     this.loadUser();
-  };
+  }
 
   loadSkills = () => {
     getSkillsForProfessional(this.state.user.id)

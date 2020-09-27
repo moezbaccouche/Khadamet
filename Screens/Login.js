@@ -7,6 +7,7 @@ import {
   StatusBar,
   Text,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import LogoBig from '../Components/LogoBig';
 import {PRIMARY_COLOR, SECONDARY_COLOR} from '../assets/colors';
@@ -105,16 +106,14 @@ const Login = (props) => {
       </View>
       <View style={styles.viewButton}>{displaySignInButton()}</View>
       <View style={styles.viewBottom}>
-        <Text
-          style={styles.textBottom}
-          onPress={() => props.navigation.navigate('Register')}>
-          Inscription
-        </Text>
-        <Text
+        <TouchableOpacity onPress={() => props.navigation.navigate('Register')}>
+          <Text style={styles.textBottom}>Inscription</Text>
+        </TouchableOpacity>
+        {/* <Text
           style={styles.textBottom}
           onPress={() => props.navigation.navigate('Register')}>
           Mot de passe oublié
-        </Text>
+        </Text> */}
       </View>
     </ImageBackground>
   );
@@ -155,8 +154,8 @@ const styles = StyleSheet.create({
   viewBottom: {
     alignSelf: 'stretch',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 10,
     marginTop: 40,
   },

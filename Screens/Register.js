@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {FormInput} from '../Components/FormInput';
 import LargeButton from '../Components/LargeButton';
-import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
+import {SECONDARY_COLOR, PRIMARY_COLOR, MUTED_COLOR} from '../assets/colors';
 import LargeSquareButton from '../Components/LargeSquareButton';
 import ImagePicker from 'react-native-image-picker';
 import {defaultPicturePath} from '../assets/defaults';
@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
     borderColor: SECONDARY_COLOR,
     borderWidth: 3,
     alignItems: 'flex-start',
+    backgroundColor: MUTED_COLOR,
   },
   viewFormRegister: {
     marginHorizontal: 10,

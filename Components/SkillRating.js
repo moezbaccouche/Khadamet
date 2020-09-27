@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class SkillRating extends React.Component {
   displayRatingStar = () => {
-    const {loggedUserId, professionalId} = this.props;
+    const {loggedUserId, professionalId, onRatingPress} = this.props;
 
     if (loggedUserId !== professionalId) {
       return (
@@ -27,10 +27,7 @@ export default class SkillRating extends React.Component {
       skillName,
       workerRating,
       backgroundColor,
-      onRatingPress,
       onSkillImagePress,
-      loggedUserId,
-      professionalId,
     } = this.props;
     return (
       <View style={styles.mainContainer}>

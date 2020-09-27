@@ -45,9 +45,9 @@ export default class CategoryExperts extends React.Component {
     }
   };
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.loadCategoryProfessionals(this.props.navigation.state.params.skillId);
-  };
+  }
 
   loadCategoryProfessionals = (skillId) => {
     getProfessionalsBySkill(skillId)

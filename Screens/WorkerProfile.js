@@ -26,9 +26,10 @@ import {getSkillById} from '../API/skills.data';
 import {ScrollView} from 'react-native-gesture-handler';
 import ReviewItem from '../Components/ReviewItem';
 import {conversationExists} from '../API/conversations.service';
+import {connect} from 'react-redux';
 
 let unique = 0;
-export default class WorkerProfile extends React.Component {
+class WorkerProfile extends React.Component {
   constructor(props, ctx) {
     super(props, ctx);
     this.state = {
@@ -41,16 +42,16 @@ export default class WorkerProfile extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f57a139c1a0390820168023'; //<--- get it from async storage
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
     this.getExpertDetails();
-  };
+  }
 
-  componentWillReceiveProps = (newProps) => {
+  componentWillReceiveProps(newProps) {
     if (newProps.navigation.state.params.updateReviews) {
       this.getExpertDetails();
     }
-  };
+  }
 
   getExpertDetails = () => {
     getProfessional(this.props.navigation.state.params.expertId)
@@ -180,11 +181,9 @@ export default class WorkerProfile extends React.Component {
       this.loggedUserId,
       this.state.expert.id,
     );
-    console.log('EXSTS', conversation);
     if (conversation.exists) {
       convId = conversation.conversationId;
     }
-    console.log('CONVID', convId);
     return convId;
   };
 
@@ -388,3 +387,11 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(WorkerProfile);

@@ -13,13 +13,10 @@ import {SECONDARY_COLOR, PRIMARY_COLOR} from '../assets/colors';
 import SearchInput from '../Components/SearchInput';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SearchedExpertItem from '../Components/SearchedExpertItem';
-import {
-  getProfessionalsBySkill,
-  searchProfessional,
-} from '../API/users.service';
-import {TextInput} from 'react-native-gesture-handler';
+import {searchProfessional} from '../API/users.service';
+import {connect} from 'react-redux';
 
-export default class Search extends React.Component {
+class Search extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -29,37 +26,30 @@ export default class Search extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
+  }
+
   searchExpert = (text) => {
     const searchString = text.toLowerCase().trim();
     console.log(searchString);
 
-    this.setState({isLoading: true});
-    // const loggedUserId = await AsyncStorage.getItem('loggedUserId'); <---- Use it later
+    this.setState({isLoading: true, searchString: searchString});
 
-    const loggedUserId = '5f579db4c1a0390820168022'; // <----- remove this line later when using asyncStorage
-    this.setState({searchString: searchString});
-
-    if (searchString.length === 0) {
-      this.setState({
-        searchedExperts: [],
-        isLoading: false,
-      });
-    } else {
-      searchProfessional(text, loggedUserId)
-        .then((foundExperts) => {
-          console.log(foundExperts);
-          this.setState({
-            searchedExperts: foundExperts,
-            isLoading: false,
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          this.setState({
-            isLoading: false,
-          });
+    searchProfessional(searchString, this.loggedUserId)
+      .then((foundExperts) => {
+        console.log(foundExperts);
+        this.setState({
+          searchedExperts: foundExperts,
+          isLoading: false,
         });
-    }
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({
+          isLoading: false,
+        });
+      });
   };
 
   renderItemProfessional = (item) => {
@@ -170,3 +160,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(Search);

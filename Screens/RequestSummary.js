@@ -28,9 +28,9 @@ export default class RequestSummary extends React.Component {
     };
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.loggedUser = '5f579db4c1a0390820168022'; //<--- From Async Storage
-  };
+  }
 
   submitRequest = () => {
     this.setState({isLoading: true});

@@ -1,5 +1,5 @@
 const PROD_BASE_URL = 'https://khadamet-api.herokuapp.com/users/';
-const DEV_BASE_URL = 'http://192.168.1.6:3000/users/';
+const DEV_BASE_URL = 'http://192.168.1.4:3000/users/';
 
 export const userExists = async (email) => {
   try {
@@ -71,9 +71,13 @@ export const getProfessionalsBySkill = async (skillId) => {
 };
 
 export const searchProfessional = async (name, loggedUserId) => {
+  let newName = name;
+  if (name.length === 0) {
+    newName = 'void';
+  }
   try {
     const response = await fetch(
-      `${DEV_BASE_URL}search/${name}/${loggedUserId}`,
+      `${DEV_BASE_URL}search/${newName}/${loggedUserId}`,
     );
     const data = await response.json();
     return data;

@@ -3,9 +3,16 @@ import Login from '../Screens/Login';
 import Register from '../Screens/Register';
 import Register2 from '../Screens/Register2';
 import RegisterSkills from '../Screens/RegisterSkills';
+import MainMenu from '../Screens/MainMenu';
 
 export default RegisterStackNavigator = createStackNavigator(
   {
+    MainMenu: {
+      screen: MainMenu,
+      navigationOptions: {
+        header: null,
+      },
+    },
     Login: {
       screen: Login,
       navigationOptions: {
@@ -32,6 +39,6 @@ export default RegisterStackNavigator = createStackNavigator(
     },
   },
   {
-    initialRouteName: 'Login',
+    initialRouteName: 'MainMenu',
   },
 );

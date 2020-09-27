@@ -186,7 +186,10 @@ export default class Review extends React.Component {
             <TextInput
               style={styles.input}
               multiline={true}
-              placeholder="Dites aux autres utilisateurs ce que vous pensez de Moez..."
+              placeholder={`Dites aux autres utilisateurs ce que vous pensez de ${name.split(
+                ' ',
+                1,
+              )}...`}
               onChangeText={(text) => this.setState({comment: text})}
             />
           </View>

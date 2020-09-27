@@ -1,6 +1,6 @@
 export const PROD_BASE_URL =
   'https://khadamet-api.herokuapp.com/conversations/';
-export const DEV_BASE_URL = 'http://192.168.1.6:3000/conversations/';
+export const DEV_BASE_URL = 'http://192.168.1.4:3000/conversations/';
 
 export const conversationExists = async (senderId, receiverId) => {
   try {

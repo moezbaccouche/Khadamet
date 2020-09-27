@@ -35,6 +35,9 @@ import CategoryExpertItem from '../Components/CategoryExpertItem';
 import OneSignal from 'react-native-onesignal';
 import {sendNotification} from '../API/notifications.service';
 import {connect} from 'react-redux';
+import {CHAT_DEV_BASE_URL} from '../API/chat.service';
+import io from 'socket.io-client';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Home extends React.Component {
   constructor(props) {
@@ -118,13 +121,21 @@ class Home extends React.Component {
     this.onIds = this.onIds.bind(this);
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- From async storage
+  async componentDidMount() {
+    this.loggedUserId = await AsyncStorage.getItem('loggedUserId');
     this.getLoggedUser();
     this.getBestEmployeesForSkill();
 
+    const loggedUserId = this.loggedUserId;
+    this.socket = io(CHAT_DEV_BASE_URL);
+    this.socket.on('connect', () => {
+      const socketId = this.socket.id;
+      this.socket.emit('addUser', {userId: loggedUserId, socketId});
+      this.props.dispatch({type: 'SET_CHAT_SOCKET', value: this.socket});
+    });
+
     OneSignal.addEventListener('ids', this.onIds);
-  };
+  }
 
   onReceived(notification) {
     console.log('Notification received: ', notification);

@@ -43,8 +43,8 @@ class EditRequest extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f579db4c1a0390820168022'; //<-- get from async storage
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
     const {request} = this.props.navigation.state.params;
 
     this.setState({
@@ -52,7 +52,7 @@ class EditRequest extends React.Component {
       description: request.description,
       date: new Date(request.date),
     });
-  };
+  }
 
   handleDateChange = () => {
     if (moment(this.state.date).isBefore(new Date(), 'minutes')) {
@@ -356,4 +356,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect()(EditRequest);
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.setLoggedUser.loggedUser,
+  };
+};
+
+export default connect(mapStateToProps)(EditRequest);

@@ -43,30 +43,16 @@ class Conversation extends React.Component {
       messages: [],
     };
 
-    this.loggedUserId = '5f57a139c1a0390820168023'; //<--- get from async storage
+    this.loggedUserId = this.props.loggedUser.id;
     this.receiverUser = this.props.navigation.state.params.receiverUser;
   }
 
-  componentDidMount = () => {
+  componentDidMount() {
     this.conversationId = this.props.navigation.state.params.conversationId;
-    console.log('PROPS', this.props.navigation.state.params);
-    const loggedUserId = this.loggedUserId;
-    this.socket = io(CHAT_DEV_BASE_URL);
-    this.socket.on('connect', () => {
-      const socketId = this.socket.id;
-      this.socket.emit('addUser', {userId: loggedUserId, socketId});
-    });
-    this.socket.on('chatToClient', this.onReceiveMessage);
-    this.loadMessages();
-  };
 
-  // loadReceiverUserDetails = () => {
-  //   getUser(this.receiverUserId).then((data) => {
-  //     this.setState({
-  //       receiverUser: data,
-  //     });
-  //   });
-  // };
+    this.props.chatSocket.on('chatToClient', this.onReceiveMessage);
+    this.loadMessages();
+  }
 
   loadMessages = () => {
     if (this.conversationId) {
@@ -141,7 +127,6 @@ class Conversation extends React.Component {
   }
 
   onSendMessage = async (msgText) => {
-    const receiverId = 'BBBB';
     const trimmedMsg = msgText.trim();
     const id = uuidv4();
     const creationDate = new Date();
@@ -179,10 +164,11 @@ class Conversation extends React.Component {
       .then((data) => console.log('MSG SAVED', data))
       .catch((err) => console.error(err));
 
-    this.socket.emit('chatToServer', {
+    this.props.chatSocket.emit('chatToServer', {
       sender: this.loggedUserId,
       msg: trimmedMsg,
-      receiverId: receiverId,
+      receiverId: this.receiverUser.id,
+      conversationId: this.conversationId,
     });
 
     this.addMessage(newMessage);
@@ -215,7 +201,10 @@ class Conversation extends React.Component {
   };
 
   onReceiveMessage = (message) => {
-    if (message.sender !== this.loggedUserId) {
+    if (
+      message.sender !== this.loggedUserId &&
+      message.conversationId === this.conversationId
+    ) {
       const creationDate = new Date();
       const newMessage = {
         _id: uuidv4(),
@@ -223,7 +212,7 @@ class Conversation extends React.Component {
         text: message.msg,
         user: {
           _id: message.sender,
-          avatar: 'https://placeimg.com/140/140/any',
+          avatar: this.receiverUser.picture,
         },
       };
       this.addMessage(newMessage);
@@ -331,14 +320,6 @@ class Conversation extends React.Component {
         </View>
       );
     }
-  };
-
-  editConversationsOverview = () => {
-    const action = {
-      type: 'ADD_OVERVIEW',
-      value: {lastMessage: {}, conversationId},
-    };
-    this.props.dispatch(action);
   };
 
   render() {
@@ -461,7 +442,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    conversationsOverview: state.conversationsOverview,
+    chatSocket: state.setChatSocket.chatSocket,
+    loggedUser: state.setLoggedUser.loggedUser,
   };
 };
 

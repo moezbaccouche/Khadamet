@@ -34,10 +34,10 @@ class PendingRequests extends React.Component {
     };
   }
 
-  componentDidMount = () => {
-    this.loggedUserId = '5f579c0fc1a039082016801e'; //<--- get it from async storage
+  componentDidMount() {
+    this.loggedUserId = this.props.loggedUser.id;
     this.loadPendingRequests();
-  };
+  }
 
   loadPendingRequests = () => {
     getPendingRequestsForProfessional(this.loggedUserId).then((data) => {
@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
   return {
     pendingRequests: state.editPendingRequests.pendingRequests,
+    loggedUser: state.setLoggedUser.loggedUser,
   };
 };
 
